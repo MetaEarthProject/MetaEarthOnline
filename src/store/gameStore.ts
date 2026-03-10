@@ -8,10 +8,10 @@ export const translations: Record<Language, any> = {
     tabs: { home: "Home", storage: "Storage", map: "Map", parliament: "Parliament", work: "Work", wars: "Wars", profile: "Profile" },
     resources: { gold: "Gold", oil: "Oil", ore: "Ore", uranium: "Uranium", diamond: "Diamonds", liquid_oxygen: "Oxygen", helium_3: "Helium-3", rivalium: "Rivalium", energy: "Energy" },
     actions: { work: "Work", fight: "Fight", refill: "Refill", travel: "Travel", buy: "Buy" },
-    ui: { 
-      fieldEnergy: "Field energy", 
-      vaultReserve: "Vault reserve", 
-      careerChoices: "Career choices", 
+    ui: {
+      fieldEnergy: "Field energy",
+      vaultReserve: "Vault reserve",
+      careerChoices: "Career choices",
       stateParliament: "State parliament",
       residenceZone: "Residence zone",
       founded: "Founded",
@@ -37,10 +37,9 @@ export const translations: Record<Language, any> = {
       expiresDay: "Expires day",
       proposedBy: "Proposed by",
       selectLawType: "Select law type",
-      economic: "Economic",
-      political: "Political",
       government: "Government",
-      back: "Back"
+      back: "Back",
+      menu: "Menu"
     },
     laws: {
       change_tax: "Change tax rate",
@@ -78,10 +77,10 @@ export const translations: Record<Language, any> = {
     tabs: { home: "홈", storage: "창고", map: "지도", parliament: "의회", work: "공장", wars: "전쟁", profile: "프로필" },
     resources: { gold: "골드", oil: "오일", ore: "광석", uranium: "우라늄", diamond: "다이아몬드", liquid_oxygen: "산소", helium_3: "헬륨-3", rivalium: "리발륨", energy: "에너지" },
     actions: { work: "노동", fight: "전투", refill: "보충", travel: "여행", buy: "구매" },
-    ui: { 
-      fieldEnergy: "현장 에너지", 
-      vaultReserve: "금고 비축량", 
-      careerChoices: "직업 선택", 
+    ui: {
+      fieldEnergy: "현장 에너지",
+      vaultReserve: "금고 비축량",
+      careerChoices: "직업 선택",
       stateParliament: "국가 의회",
       residenceZone: "거주 구역",
       founded: "설립일",
@@ -107,10 +106,9 @@ export const translations: Record<Language, any> = {
       expiresDay: "만료일",
       proposedBy: "제안자",
       selectLawType: "법률 유형 선택",
-      economic: "경제",
-      political: "정치",
       government: "정부",
-      back: "뒤로"
+      back: "뒤로",
+      menu: "메뉴"
     },
     laws: {
       change_tax: "세율 변경",

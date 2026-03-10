@@ -652,10 +652,7 @@ export default function App() {
     { label: t.resources.oil, value: (resources.oil * 24.56).toFixed(2), tone: "oil", symbol: "Br" },
     { label: t.resources.ore, value: (resources.iron * 13.06).toFixed(2), tone: "ore", symbol: "Fe" },
     { label: t.resources.uranium, value: (resources.uranium * 1.37).toFixed(2), tone: "uranium", symbol: "U" },
-    { label: t.resources.diamond, value: ((resources.diamond || 0) * 14.12 + 0.84).toFixed(2), tone: "diamond", symbol: "D" },
-    { label: t.resources.liquid_oxygen, value: ((resources.liquid_oxygen || 0) * 8.35).toFixed(2), tone: "liquid_oxygen", symbol: "O2" },
-    { label: t.resources.helium_3, value: ((resources.helium_3 || 0) * 45.1).toFixed(2), tone: "helium_3", symbol: "He3" },
-    { label: t.resources.rivalium, value: ((resources.rivalium || 0) * 98.5).toFixed(2), tone: "rivalium", symbol: "Rv" }
+    { label: t.resources.diamond, value: ((resources.diamond || 0) * 14.12 + 0.84).toFixed(2), tone: "diamond", symbol: "D" }
   ];
 
   const workFactories = useMemo<WorkFactory[]>(
@@ -1032,16 +1029,16 @@ export default function App() {
       <main className={shellClassName}>
         {isProfileTab ? (
           <header className="phone-topbar">
-      <div className="topbar-icon-btn">
-        <button type="button" onClick={() => setLanguage(language === 'en' ? 'ko' : 'en')}>
-          {language.toUpperCase()}
-        </button>
-      </div>
-      <h1>{activeTabLabel}</h1>
-      <button type="button" className="topbar-icon-btn">
-        <Icon name="search" className="topbar-icon" />
-      </button>
-    </header>
+            <div className="topbar-icon-btn">
+              <button type="button" onClick={() => setLanguage(language === 'en' ? 'ko' : 'en')}>
+                {language.toUpperCase()}
+              </button>
+            </div>
+            <h1>{activeTabLabel}</h1>
+            <button type="button" className="topbar-icon-btn">
+              <Icon name="search" className="topbar-icon" />
+            </button>
+          </header>
         ) : isParliamentTab ? (
           <header className={topbarClassName}>
             <button type="button" className="topbar-icon-btn" onClick={() => {
@@ -1059,16 +1056,16 @@ export default function App() {
           <header className={topbarClassName}>
             <button
               type="button"
-              className={isGameChromeTab ? "topbar-icon-btn" : ""}
+              className={isGameChromeTab ? "topbar-icon-btn" : "topbar-menu-btn"}
               onClick={isMapTab ? () => openTab("home") : () => openTab("map")}
               aria-label={isMapTab ? "Return home" : "Open map page"}
             >
-              {isGameChromeTab ? <Icon name="search" className="topbar-icon" /> : isMapTab ? "Home" : "Map"}
+              {isGameChromeTab ? <Icon name="search" className="topbar-icon" /> : isMapTab ? t.tabs.home : t.tabs.map}
             </button>
             <h1>{activeTab === "map" ? "Maps" : activeTabLabel}</h1>
             <button
               type="button"
-              className={isGameChromeTab ? "topbar-icon-btn" : isHomeTab ? `topbar-menu-btn${isHomeMenuOpen ? " open" : ""}` : ""}
+              className={isGameChromeTab ? "topbar-icon-btn" : isHomeTab ? `topbar-menu-btn${isHomeMenuOpen ? " open" : ""}` : "topbar-menu-btn"}
               onClick={
                 isWorkTab
                   ? () => openTab("profile")
@@ -1088,7 +1085,7 @@ export default function App() {
                       : "Return home"
               }
             >
-              {isWorkTab ? <Icon name="mail" className="topbar-icon" /> : isWarsTab ? <Icon name="dots" className="topbar-icon" /> : isHomeTab ? "Menu" : "Home"}
+              {isWorkTab ? <Icon name="mail" className="topbar-icon" /> : isWarsTab ? <Icon name="dots" className="topbar-icon" /> : isHomeTab ? t.ui.menu : t.tabs.home}
             </button>
           </header>
         )}
@@ -1550,9 +1547,9 @@ export default function App() {
                     +
                   </button>
                   <div className="work-energy-status">
-                    <span>Energy: {player.energy}/200 | Reserve: {formatNumber(player.energyCredits)} E</span>
+                    <span>Energy: {isAutoMode ? 0 : player.energy}/200</span>
                     <div className="work-energy-track">
-                      <div className="work-energy-fill" style={{ width: `${workEnergyPercent}%` }} />
+                      <div className="work-energy-fill" style={{ width: `${isAutoMode ? 0 : workEnergyPercent}%` }} />
                     </div>
                   </div>
                   <button type="button" className="work-refill-btn" onClick={() => buyFactoryEnergy(refillEnergyCost)}>
@@ -1819,7 +1816,7 @@ export default function App() {
         </section>
 
         <nav className={navClassName} aria-label="Game navigation tabs">
-            {(getTabs(t) as any[]).map((tab) => (
+          {(getTabs(t) as any[]).map((tab) => (
             <button
               key={tab.key}
               type="button"
