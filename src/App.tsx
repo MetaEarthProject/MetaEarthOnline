@@ -68,6 +68,9 @@ type WarConflict = {
   endsIn: string;
   progress: number;
   emblem: string;
+  rawAttackerDamage: number;
+  rawDefenderDamage: number;
+  active: boolean;
 };
 
 type ParliamentSeatTone = "red" | "blue" | "violet" | "gold" | "lime" | "empty";
@@ -102,7 +105,7 @@ const getTabLabels = (t: any) => ({
   profile: t.tabs.profile
 });
 
-const REALTIME_TICK_SECONDS = 5;
+const REALTIME_TICK_SECONDS = 1;
 const AUTO_WORK_INTERVAL_MS = 10 * 60 * 1000;
 const FULL_FACTORY_ENERGY_COST = 300;
 const WORK_REFILL_OPTIONS = Array.from({ length: FULL_FACTORY_ENERGY_COST / 10 }, (_, index) => (index + 1) * 10);
@@ -113,6 +116,7 @@ const PARLIAMENT_SEAT_CAPACITY = PARLIAMENT_SEAT_ROWS.reduce((total, row) => tot
 const formatNumber = (value: number) => new Intl.NumberFormat("en-US").format(value);
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 const formatCountdown = (totalSeconds: number) => {
+  if (totalSeconds <= 0) return "00:00:00";
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
@@ -570,6 +574,267 @@ function ParliamentBlocRow({ bloc }: { bloc: ParliamentBloc }) {
   );
 }
 
+function BattleWindow({ war, onClose }: { war: WarConflict; onClose: () => void }) {
+  const { military, player, action, sendTroops, language } = useGameStore();
+  const t = translations[language];
+  const [selectedSide, setSelectedSide] = useState<"attacker" | "defender">("attacker");
+  const [ammoKits, setAmmoKits] = useState(0);
+  const [ammoTanks, setAmmoTanks] = useState(0);
+  const [ammoAir, setAmmoAir] = useState(0);
+  const [ammoNavy, setAmmoNavy] = useState(0);
+  const [energySpend, setEnergySpend] = useState(Math.floor(Math.min(player.energy, 300) / 10) * 10 || 10);
+
+  const handleStrike = () => {
+    sendTroops(war.id, selectedSide, {
+      infantry: ammoKits,
+      tank: ammoTanks,
+      aircraft: ammoAir,
+      navy: ammoNavy
+    }, energySpend);
+  };
+
+  const handleAutoFull = () => {
+    sendTroops(war.id, selectedSide, {
+      infantry: military.infantry || 0,
+      tank: military.tanks || 0,
+      aircraft: military.aircraft || 0,
+      navy: military.navy || 0
+    }, 300);
+  };
+
+  const totalDamageRaw = war.rawDefenderDamage - war.rawAttackerDamage;
+  const totalDamageColored = totalDamageRaw < 0 ? "rgba(220, 38, 38, 1)" : "#fca311";
+
+  return (
+    <div className="me-battle-overlay">
+      <div className="me-battle-window">
+        <header className="me-battle-header">
+          <div className="me-battle-side attacker">
+            <div className="me-battle-icon-shell">
+              <Icon name={war.icon} className="me-battle-icon" />
+            </div>
+            <div className="me-battle-side-info">
+              <span className="me-battle-side-label">Attacker</span>
+              <strong className="me-battle-side-name">{war.frontName}</strong>
+              <div className="me-battle-side-damage">{war.frontDamage}</div>
+            </div>
+          </div>
+
+          <div className="me-battle-vs">
+            <div className="me-battle-timer">{war.endsIn}</div>
+            <div className="me-battle-total-label">Total Damage</div>
+            <div className="me-battle-total-val" style={{ color: totalDamageColored }}>
+              {formatNumber(totalDamageRaw)}
+            </div>
+          </div>
+
+          <div className="me-battle-side defender">
+            <div className="me-battle-emblem">{war.emblem}</div>
+            <div className="me-battle-side-info align-right">
+              <span className="me-battle-side-label">Defender</span>
+              <strong className="me-battle-side-name">{war.targetName}</strong>
+              <div className="me-battle-side-damage">{war.targetDamage}</div>
+            </div>
+          </div>
+          <button type="button" className="me-battle-close" onClick={onClose}>×</button>
+        </header>
+
+        <main className="me-battle-main">
+          <section className="me-battle-training-strip">
+            <div className="me-battle-training-copy">
+              <strong>Military Training</strong>
+              <p>Boost your STR and STA stats for higher basic damage.</p>
+            </div>
+            <button type="button" className="me-battle-train-btn" onClick={() => action("train")}>
+              Train Stats
+            </button>
+          </section>
+
+          <section className="me-battle-deployment">
+            <h3>Deploy units</h3>
+            <div className="me-battle-side-selector">
+              <button
+                type="button"
+                className={`side-btn attacker ${selectedSide === "attacker" ? "active" : ""}`}
+                onClick={() => setSelectedSide("attacker")}
+              >
+                Help Attacker
+              </button>
+              <button
+                type="button"
+                className={`side-btn defender ${selectedSide === "defender" ? "active" : ""}`}
+                onClick={() => setSelectedSide("defender")}
+              >
+                Help Defender
+              </button>
+            </div>
+
+            <div className="me-battle-unit-grid">
+              <div className="me-battle-unit-input">
+                <div className="me-unit-label">
+                  <Icon name="infantry" className="me-unit-icon" />
+                  <span>Kits: {military.infantry}</span>
+                </div>
+                <input type="number" value={ammoKits} min={0} max={military.infantry} onChange={e => setAmmoKits(Number(e.target.value))} />
+              </div>
+              <div className="me-battle-unit-input">
+                <div className="me-unit-label">
+                  <Icon name="tank" className="me-unit-icon" />
+                  <span>Tanks: {military.tanks}</span>
+                </div>
+                <input type="number" value={ammoTanks} min={0} max={military.tanks} onChange={e => setAmmoTanks(Number(e.target.value))} />
+              </div>
+              <div className="me-battle-unit-input">
+                <div className="me-unit-label">
+                  <Icon name="aircraft" className="me-unit-icon" />
+                  <span>Air: {military.aircraft}</span>
+                </div>
+                <input type="number" value={ammoAir} min={0} max={military.aircraft} onChange={e => setAmmoAir(Number(e.target.value))} />
+              </div>
+              <div className="me-battle-unit-input">
+                <div className="me-unit-label">
+                  <Icon name="ship" className="me-unit-icon" />
+                  <span>Navy: {military.navy}</span>
+                </div>
+                <input type="number" value={ammoNavy} min={0} max={military.navy} onChange={e => setAmmoNavy(Number(e.target.value))} />
+              </div>
+            </div>
+
+            <div className="me-battle-energy-row">
+              <div className="me-energy-label">
+                <span>Energy to spend: {energySpend}</span>
+                <small>Available: {player.energy}</small>
+              </div>
+              <input type="range" min={10} max={Math.min(player.energy, 300)} border-radius="2px" step={10} value={energySpend} onChange={e => setEnergySpend(Number(e.target.value))} />
+            </div>
+
+            <div className="me-battle-actions">
+              <button
+                type="button"
+                className={`me-battle-strike-btn ${!war.active ? "inactive" : ""}`}
+                onClick={handleStrike}
+                disabled={!war.active}
+              >
+                {!war.active ? "Conflict Ended" : (selectedSide === "attacker" ? "Strike Defender" : "Strike Attacker")}
+              </button>
+              <div className="me-battle-auto-buttons">
+                <button
+                  type="button"
+                  className={`me-battle-auto-btn drink ${!war.active ? "inactive" : ""}`}
+                  onClick={handleAutoFull}
+                  disabled={!war.active}
+                >
+                  Max Strike (300E)
+                </button>
+                <button
+                  type="button"
+                  className={`me-battle-auto-btn ${!war.active ? "inactive" : ""}`}
+                  onClick={() => sendTroops(war.id, selectedSide, {}, 10)}
+                  disabled={!war.active}
+                >
+                  Standard Strike (10E)
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function TrainingWindow({ onClose }: { onClose: () => void }) {
+  const { player, action, language, regions } = useGameStore();
+  const t = translations[language];
+  const region = regions.find(r => r.id === player.locationId)!;
+  const [energySpend, setEnergySpend] = useState(Math.floor(Math.min(player.energy, 300) / 10) * 10 || 10);
+
+  const handleTrain = () => {
+    // Multi-strike training logic: simulate multiple training actions based on energy
+    const strikes = Math.floor(energySpend / 14);
+    for (let i = 0; i < strikes; i++) {
+      action("train");
+    }
+  };
+
+  const handleAutoFull = () => {
+    const strikes = Math.floor(player.energy / 14);
+    for (let i = 0; i < strikes; i++) {
+      action("train");
+    }
+  };
+
+  return (
+    <div className="me-battle-overlay training-variant">
+      <div className="me-battle-window training-theme">
+        <header className="me-battle-header">
+          <div className="me-battle-side attacker">
+            <div className="me-battle-icon-shell training-blue">
+              <Icon name="stamina" className="me-battle-icon" />
+            </div>
+            <div className="me-battle-side-info">
+              <span className="me-battle-side-label">Primary Objective</span>
+              <strong className="me-battle-side-name">Military Drills</strong>
+              <div className="me-battle-side-damage">Region: {region.city}</div>
+            </div>
+          </div>
+
+          <div className="me-battle-vs">
+            <div className="me-battle-timer">∞</div>
+            <div className="me-battle-total-label">Current Strength</div>
+            <div className="me-battle-total-val">{player.strength}</div>
+          </div>
+
+          <div className="me-battle-side defender">
+            <div className="me-battle-emblem training-blue">HQ</div>
+            <div className="me-battle-side-info align-right">
+              <span className="me-battle-side-label">Training Center</span>
+              <strong className="me-battle-side-name">Global Academy</strong>
+              <div className="me-battle-side-damage">XP Boost: +{18 + region.militaryIndex}</div>
+            </div>
+          </div>
+          <button type="button" className="me-battle-close" onClick={onClose}>×</button>
+        </header>
+
+        <main className="me-battle-main">
+          <section className="me-battle-training-strip blue-accent">
+            <div className="me-battle-training-copy">
+              <strong>Advanced Training</strong>
+              <p>Maximize your endurance and tactical skill through high-intensity drills.</p>
+            </div>
+          </section>
+
+          <section className="me-battle-deployment">
+            <h3>Training parameters</h3>
+
+            <div className="me-battle-energy-row">
+              <div className="me-energy-label">
+                <span>Energy for training: {energySpend}</span>
+                <small>Available: {player.energy}</small>
+              </div>
+              <input type="range" min={10} max={Math.min(player.energy, 300)} step={10} value={energySpend} onChange={e => setEnergySpend(Number(e.target.value))} />
+            </div>
+
+            <div className="me-battle-actions">
+              <button type="button" className="me-battle-strike-btn training-blue-btn" onClick={handleTrain}>
+                Start Training
+              </button>
+              <div className="me-battle-auto-buttons">
+                <button type="button" className="me-battle-auto-btn drink" onClick={handleAutoFull}>
+                  Max Drills (with drinks)
+                </button>
+                <button type="button" className="me-battle-auto-btn" onClick={() => action("train")}>
+                  Standard Drill (14E)
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const {
     day,
@@ -618,6 +883,8 @@ export default function App() {
   const [lawCategoryFilter, setLawCategoryFilter] = useState<LawCategory | "all">("all");
   const [selectedLawType, setSelectedLawType] = useState<LawType | null>(null);
   const [billListFilter, setBillListFilter] = useState<"pending" | "accepted" | "rejected">("pending");
+  const [selectedWar, setSelectedWar] = useState<WarConflict | null>(null);
+  const [isTrainingOpen, setIsTrainingOpen] = useState(false);
   const workSearchRef = useRef<HTMLInputElement>(null);
   const deferredWorkSearch = useDeferredValue(workSearch);
 
@@ -909,44 +1176,48 @@ export default function App() {
   const coupTargets = regions.filter((entry) => entry.id !== region.id && entry.stability < 60 && canCoupRegion(entry)).length;
 
   const warsConflicts = useMemo<WarConflict[]>(() => {
-    const playerStrikeDamage = getWarDamageEstimate(player, region, military);
-
-    return [...regions]
-      .filter((entry) => entry.id !== region.id)
-      .sort((left, right) => right.defense + right.economy + right.militaryIndex * 5 - (left.defense + left.economy + left.militaryIndex * 5))
-      .map((entry, index) => {
-        const ownerParty = parties.find((party) => party.id === entry.owner);
-        const frontName = canCoupRegion(entry) ? "Coup powers" : `${ownerParty?.name ?? entry.country} shielded front`;
-        const frontDamage = formatNumber(getWarDefenseEstimate(entry) + index * 58000);
-        const strikeDamage = formatNumber(playerStrikeDamage + index * 84000);
-        const targetDamage = formatNumber(getWarDefenseEstimate(entry) + entry.developmentIndex * 180000);
-        const countdown = formatCountdown(7200 + index * 1460 + day * 37);
-        const progress = clamp(28 + player.level * 4 + military.infantry + region.militaryIndex * 2 - entry.stability - entry.militaryIndex, 16, 96);
-        const emblem = entry.country
-          .split(/\s+/)
-          .map((part) => part[0])
-          .join("")
-          .slice(0, 3)
-          .toUpperCase();
-        const tone: WarConflictTone =
-          entry.owner === activeParty?.id ? "friendly" : entry.owner === dominantParty.id ? "alert" : "danger";
-
+    return wars.map((war) => {
+      const targetRegion = regions.find((r) => r.id === war.targetRegion);
+      if (!targetRegion) {
+        // Fallback for safety
         return {
-          id: entry.id,
-          icon: index % 2 === 0 ? "flame" : "fist",
-          tone,
-          frontName,
-          frontDamage,
-          strikeDamage,
-          targetName: entry.city,
-          targetRegion: entry.country,
-          targetDamage,
-          endsIn: countdown,
-          progress,
-          emblem
+          id: war.id,
+          icon: "fist",
+          tone: "danger",
+          frontName: war.attackerId,
+          frontDamage: formatNumber(war.attackerDamage),
+          strikeDamage: formatNumber(war.defenderDamage - war.attackerDamage),
+          targetName: "Unknown Front",
+          targetRegion: "unknown",
+          targetDamage: formatNumber(war.defenderDamage),
+          progress: 50,
+          endsIn: "--:--:--",
+          emblem: "?",
+          rawAttackerDamage: war.attackerDamage,
+          rawDefenderDamage: war.defenderDamage,
+          active: true
         };
-      });
-  }, [activeParty?.id, day, dominantParty.id, military, parties, player, region, regions]);
+      }
+      const secondsLeft = Math.max(0, Math.floor((war.expiresAt - Date.now()) / 1000));
+      return {
+        id: war.id,
+        icon: "fist",
+        tone: "danger",
+        frontName: war.attackerId,
+        frontDamage: formatNumber(war.attackerDamage),
+        strikeDamage: formatNumber(war.defenderDamage - war.attackerDamage),
+        targetName: targetRegion.city,
+        targetRegion: targetRegion.id,
+        targetDamage: formatNumber(war.defenderDamage),
+        progress: clamp(Math.round((war.attackerDamage / (war.defenderDamage || 1)) * 100), 16, 96),
+        endsIn: war.active && secondsLeft > 0 ? formatCountdown(secondsLeft) : "FINISHED",
+        emblem: targetRegion.country.slice(0, 1).toUpperCase(),
+        rawAttackerDamage: war.attackerDamage,
+        rawDefenderDamage: war.defenderDamage,
+        active: war.active
+      };
+    });
+  }, [wars, regions, day]);
 
   const parliamentName = `${region.country} Parliament`;
   const parliamentConvocationDate = "12 March 2026 18:19";
@@ -1760,7 +2031,7 @@ export default function App() {
                 onAction={attackNeighbor}
               />
 
-              <button type="button" className="wars-wide-btn blue training" onClick={() => action("train")}>
+              <button type="button" className="wars-wide-btn blue training" onClick={() => setIsTrainingOpen(true)}>
                 Military training
               </button>
 
@@ -1771,16 +2042,24 @@ export default function App() {
                     <WarConflictRow
                       key={conflict.id}
                       conflict={conflict}
-                      onFight={() => {
-                        if (conflict.id !== region.id) {
-                          travel(conflict.id);
-                        }
-                        action("fight");
-                      }}
+                      onFight={() => setSelectedWar(conflict)}
                     />
                   ))}
                 </div>
               </section>
+
+              {selectedWar && (
+                <BattleWindow
+                  war={warsConflicts.find(w => w.id === selectedWar.id) || selectedWar}
+                  onClose={() => setSelectedWar(null)}
+                />
+              )}
+
+              {isTrainingOpen && (
+                <TrainingWindow
+                  onClose={() => setIsTrainingOpen(false)}
+                />
+              )}
             </div>
           )}
 
@@ -1943,7 +2222,7 @@ export default function App() {
           ))}
         </nav>
       </main>
-    </div>
+    </div >
   );
 }
 

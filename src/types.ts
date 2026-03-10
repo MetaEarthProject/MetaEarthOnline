@@ -42,6 +42,7 @@ export type War = {
   attackerDamage: number;
   defenderDamage: number;
   active: boolean;
+  expiresAt: number;
 };
 
 export type Player = {

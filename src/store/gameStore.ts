@@ -146,6 +146,7 @@ export const translations: Record<Language, any> = {
 
 type GameState = {
   day: number;
+  totalTicks: number;
   nextElectionDay: number;
   player: Player;
   parties: Party[];
@@ -169,6 +170,7 @@ type GameState = {
   joinDominantParty: () => void;
   createParty: () => void;
   attackNeighbor: () => void;
+  sendTroops: (warId: string, side: "attacker" | "defender", weapons: Record<string, number>, energy: number) => void;
   proposeBill: (lawType: LawType) => void;
   voteOnBill: (billId: string, vote: "pro" | "contra") => void;
 };
@@ -177,6 +179,7 @@ type IndexedRegionKey = "healthIndex" | "militaryIndex" | "educationIndex" | "de
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+const formatNumber = (value: number) => new Intl.NumberFormat("en-US").format(value);
 const FACTORY_ENERGY_COST = 300;
 const FACTORY_WORK_COST: [number, number] = [12, 16];
 const BASE_STORAGE_CAPACITY = 200000;
@@ -686,6 +689,7 @@ export { LAW_DEFINITIONS, ALL_LAW_TYPES };
 
 export const useGameStore = create<GameState>((set) => ({
   day: 1,
+  totalTicks: 0,
   nextElectionDay: 10,
   player: initialPlayer,
   parties: initialParties,
@@ -695,7 +699,11 @@ export const useGameStore = create<GameState>((set) => ({
   workExperience: initialWorkExperience,
   laws: { taxRate: 12, militaryBudget: 15, tradeTariff: 8 },
   bills: generateInitialBills(1, initialRegions[0], initialParties),
-  wars: [],
+  wars: [
+    { id: "war-1", type: "Ground", targetRegion: "mena", attackerId: "Istanbul Command", attackerDamage: 471643, defenderDamage: 831643, active: true, expiresAt: Date.now() + 3600 * 5 * 1000 },
+    { id: "war-2", type: "Revolution", targetRegion: "us-east", attackerId: "Atlantic Front", attackerDamage: 120500, defenderDamage: 450000, active: true, expiresAt: Date.now() + 3600 * 8 * 1000 },
+    { id: "war-3", type: "Coup", targetRegion: "eu-west", attackerId: "Resistance", attackerDamage: 88000, defenderDamage: 32000, active: true, expiresAt: Date.now() + 3600 * 12 * 1000 }
+  ],
   log: ["[Day 1] Meta Earth Online initialized on real-world map."],
 
   setRole: (role) =>
@@ -1065,34 +1073,27 @@ export const useGameStore = create<GameState>((set) => ({
 
   nextDay: () =>
     set((state) => {
-      const day = state.day + 1;
+      const totalTicks = state.totalTicks + 1;
+      const dayStarted = totalTicks % 600 === 0;
+      const day = dayStarted ? state.day + 1 : state.day;
       const player = { ...state.player };
-      const parties = state.parties.map((party) => ({ ...party, popularity: clamp(party.popularity + rand(-2, 2), 1, 99) }));
-      const regions = state.regions.map((region) => ({
-        ...region,
-        stability: clamp(region.stability + rand(-2, 2) + Math.floor(region.developmentIndex / 4), 0, 100),
-        economy: clamp(region.economy + rand(-1, 3) + Math.floor(region.developmentIndex / 5), 0, 100),
-        defense: clamp(region.defense + rand(-1, 2) + Math.floor(region.militaryIndex / 4), 20, 100)
-      }));
-      const homeRegion = regions.find((region) => region.id === player.locationId)!;
-      const studyPoints = Math.floor(homeRegion.educationIndex / 5);
-      player.energy = clamp(player.energy + 18 + player.stamina + homeRegion.healthIndex * 4, 0, 200);
-      player.time = clamp(player.time + 32 + homeRegion.healthIndex * 2, 0, 120);
-      let log = withLog(state.log, day, "A new day started.");
+      const regions = state.regions.map((region) => ({ ...region }));
 
-      if (studyPoints > 0) {
-        player.perkPoints += studyPoints;
-        log = withLog(log, day, `${homeRegion.city} education index accelerated perk study. +${studyPoints} perk point${studyPoints === 1 ? "" : "s"}.`);
+      // Energy: 300E / 10min (600s) = 0.5E per tick.
+      player.energy = clamp(player.energy + 0.5, 0, 300);
+      player.time = clamp(player.time + 0.1, 0, 120);
+
+      const parties = dayStarted
+        ? state.parties.map(p => ({ ...p, popularity: clamp(p.popularity + rand(-1, 1), 1, 99) }))
+        : state.parties;
+
+      if (dayStarted) {
+        state.regions.forEach((region, i) => {
+          regions[i].stability = clamp(region.stability + rand(-1, 1), 0, 100);
+          regions[i].economy = clamp(region.economy + rand(0, 1), 0, 100);
+        });
       }
 
-      let nextElectionDay = state.nextElectionDay;
-      if (day >= state.nextElectionDay) {
-        nextElectionDay = day + 10;
-        const winner = [...parties].sort((left, right) => right.popularity - left.popularity)[0];
-        log = withLog(log, day, `Election result: ${winner.name} gained state control momentum.`);
-      }
-
-      // Process bill expirations
       const bills = state.bills.map((bill) => {
         if (bill.status !== "pending") return bill;
         const b = { ...bill };
@@ -1100,19 +1101,73 @@ export const useGameStore = create<GameState>((set) => ({
           const totalCast = b.votesFor + b.votesAgainst;
           const threshold = (b.lawType === "proclamation_dictatorship" || b.lawType === "dominant_party_system") ? 0.8 : 0.5;
           b.status = b.votesFor / Math.max(1, totalCast) > threshold ? "accepted" : "rejected";
-        } else {
-          // NPC voting each day
-          const npcDailyVotes = rand(1, 4);
-          for (let i = 0; i < npcDailyVotes; i++) {
-            if (Math.random() > 0.42) b.votesFor += 1;
-            else b.votesAgainst += 1;
-          }
+        } else if (dayStarted) {
+          b.votesFor += rand(1, 4);
+          b.votesAgainst += rand(1, 3);
         }
         return b;
       });
 
-      return { day, nextElectionDay, player, parties, regions, bills, log };
+      const now = Date.now();
+      const wars = state.wars.map(w => {
+        if (!w.active) return w;
+        if (now >= w.expiresAt) return { ...w, active: false };
+        return {
+          ...w,
+          attackerDamage: w.attackerDamage + rand(100, 500),
+          defenderDamage: w.defenderDamage + rand(100, 500)
+        };
+      });
+
+      return { totalTicks, day, player, parties, regions, bills, wars };
     }),
+  sendTroops: (warId, side, weapons, energy) =>
+    set((state) => {
+      const player = { ...state.player };
+      const military = { ...state.military };
+      const wars = state.wars.map(w => ({ ...w }));
+      const war = wars.find(w => w.id === warId);
+
+      if (!war || !war.active) {
+        return { log: withLog(state.log, state.day, "Conflict has ended or is invalid.") };
+      }
+
+      const regions = state.regions.map((r) => ({ ...r }));
+
+      if (!spendAction(player, energy, Math.floor(energy * 0.8))) {
+        return { log: withLog(state.log, state.day, "Exhausted. Need more energy/time.") };
+      }
+
+      let totalWeaponDamage = 0;
+      for (const [key, val] of Object.entries(weapons)) {
+        const militaryKey = key === "infantry" ? "infantry" : key === "tank" ? "tanks" : key === "aircraft" ? "aircraft" : key === "navy" ? "navy" : key;
+        const available = military[militaryKey] ?? 0;
+        const actualSpend = Math.min(val, available);
+        military[militaryKey] -= actualSpend;
+        const weaponWeight = key === "tank" ? 12000 : key === "aircraft" ? 25000 : key === "navy" ? 45000 : 4200;
+        totalWeaponDamage += actualSpend * weaponWeight;
+      }
+
+      const playerBase = getWarDamageEstimate(player, regions[0], military);
+      const contribution = Math.round((playerBase + totalWeaponDamage) * (energy / 20) * (1 + rand(1, 15) / 100));
+
+      if (side === "attacker") {
+        war.attackerDamage += contribution;
+      } else {
+        war.defenderDamage += contribution;
+      }
+
+      grantXp(player, Math.floor(energy * 1.5));
+      player.influence += Math.floor(energy / 25);
+
+      return {
+        player,
+        military,
+        wars,
+        log: withLog(state.log, state.day, `Deployed to help ${side}. Damage added: ${formatNumber(contribution)}.`)
+      };
+    }),
+
   language: 'en',
   setLanguage: (language) => set({ language }),
 }));

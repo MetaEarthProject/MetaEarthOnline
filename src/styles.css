@@ -3467,3 +3467,458 @@ body {
 .phone-content {
   scrollbar-gutter: stable;
 }
+
+/* Battle Window Premium Theme */
+.me-battle-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 3000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.me-battle-window {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  animation: modalFadeIn 0.25s ease-out;
+  position: relative;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.me-battle-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "attacker defender"
+    "vs vs";
+  padding: 40px 15px 20px 15px;
+  background: #111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 15px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+@media (min-width: 800px) {
+  .me-battle-header {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "attacker vs defender";
+    padding: 30px;
+  }
+}
+
+.me-battle-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.me-battle-side.attacker {
+  grid-area: attacker;
+}
+
+.me-battle-side.defender {
+  grid-area: defender;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.me-battle-icon-shell {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #444 0%, #222 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.me-battle-icon {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+}
+
+.me-battle-side-label {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.me-battle-side-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.me-battle-side-name {
+  display: block;
+  font-size: 1.1rem;
+  font-family: var(--work-display-font);
+  color: #fff;
+  margin: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.me-battle-side-damage {
+  font-size: 0.9rem;
+  color: var(--work-gold);
+}
+
+.me-battle-vs {
+  grid-area: vs;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 800px) {
+  .me-battle-vs {
+    border-top: none;
+    padding: 0 40px;
+  }
+}
+
+.me-battle-timer {
+  font-family: var(--work-display-font);
+  font-size: 1.8rem;
+  color: #fff;
+  line-height: 1;
+}
+
+.me-battle-total-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-top: 8px;
+}
+
+.me-battle-total-val {
+  font-size: 1.3rem;
+  color: #fca311;
+  font-weight: 800;
+}
+
+.me-battle-emblem {
+  width: 38px;
+  height: 38px;
+  background: rgba(252, 163, 17, 0.1);
+  border: 1px dashed rgba(252, 163, 17, 0.3);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--work-display-font);
+  font-size: 0.85rem;
+  color: #fca311;
+  flex-shrink: 0;
+  order: 2;
+}
+
+.me-battle-close {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #888;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all 0.2s;
+}
+
+.me-battle-close::before {
+  content: "← ";
+  margin-right: 4px;
+}
+
+.me-battle-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.me-battle-main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.me-battle-main::-webkit-scrollbar {
+  display: none;
+}
+
+.me-battle-training-strip {
+  background: rgba(252, 163, 17, 0.05);
+  border: 1px dashed rgba(252, 163, 17, 0.2);
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+  margin-bottom: 25px;
+}
+
+.me-battle-training-copy strong {
+  display: block;
+  color: var(--work-gold);
+}
+
+.me-battle-training-copy p {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.me-battle-train-btn {
+  background: var(--work-gold);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 700;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.me-battle-deployment h3 {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.me-battle-unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.me-battle-unit-input {
+  background: #151515;
+  border: 1px solid #222;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.me-unit-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.me-unit-icon {
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+.me-unit-label span {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.me-battle-unit-input input {
+  width: 100%;
+  background: #000;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 6px;
+  border-radius: 2px;
+}
+
+.me-battle-energy-row {
+  margin-top: 25px;
+  padding: 15px;
+  background: #111;
+  border-radius: 4px;
+}
+
+.me-energy-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.me-energy-label span {
+  color: #fff;
+}
+
+.me-energy-label small {
+  color: #666;
+}
+
+.me-battle-energy-row input {
+  width: 100%;
+}
+
+.me-battle-actions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.me-battle-strike-btn {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  font-family: var(--work-display-font);
+  font-size: 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.me-battle-side-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.side-btn {
+  background: #151515;
+  border: 1px solid #333;
+  color: #666;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.side-btn.attacker.active {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: #dc2626;
+  color: #ef4444;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.1);
+}
+
+.side-btn.defender.active {
+  background: rgba(29, 78, 216, 0.15);
+  border-color: #1d4ed8;
+  color: #60a5fa;
+  box-shadow: 0 0 15px rgba(29, 78, 216, 0.1);
+}
+
+.me-battle-strike-btn:hover {
+  background: #ef4444;
+}
+
+.me-battle-auto-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.me-battle-auto-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.me-battle-auto-btn.drink {
+  background: #1d4ed8;
+}
+
+.me-battle-auto-btn:hover {
+  opacity: 0.9;
+}
+
+/* Training Window Theme Variants */
+.me-battle-window.training-theme {
+  border-color: rgba(29, 78, 216, 0.4);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(29, 78, 216, 0.05);
+}
+
+.me-battle-icon-shell.training-blue {
+  background: linear-gradient(135deg, #1d4ed8 0%, #172554 100%);
+}
+
+.me-battle-emblem.training-blue {
+  background: rgba(29, 78, 216, 0.1);
+  border-color: rgba(29, 78, 216, 0.3);
+}
+
+.blue-accent {
+  background: rgba(29, 78, 216, 0.05) !important;
+  border-color: rgba(29, 78, 216, 0.2) !important;
+}
+
+.blue-accent strong {
+  color: #60a5fa !important;
+}
+
+.training-blue-btn {
+  background: #1d4ed8 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(29, 78, 216, 0.3) !important;
+}
+
+.training-blue-btn:hover {
+  background: #2563eb !important;
+}
+
+.me-battle-overlay.training-variant {
+  background: rgba(0, 5, 20, 0.85);
+}
