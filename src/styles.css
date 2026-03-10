@@ -2146,8 +2146,10 @@ body {
 }
 
 .parliament-panel {
-  margin: 0 8px;
+  margin: 0 0 12px;
   border: 1px solid #51545e;
+  border-left: none;
+  border-right: none;
   background: linear-gradient(180deg,
       rgba(44, 46, 54, 0.98) 0%,
       rgba(23, 24, 29, 0.98) 100%);
@@ -2356,8 +2358,10 @@ body {
 
 /* ── Law Propose Panel ── */
 .law-propose-panel {
-  margin: 0 8px;
+  margin: 0 0 12px;
   border: 1px solid #51545e;
+  border-left: none;
+  border-right: none;
   background: linear-gradient(180deg, rgba(44, 46, 54, 0.98) 0%, rgba(23, 24, 29, 0.98) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -2519,8 +2523,10 @@ body {
 
 /* ── Bills Panel ── */
 .law-bills-panel {
-  margin: 0 8px;
+  margin: 0;
   border: 1px solid #51545e;
+  border-left: none;
+  border-right: none;
   background: linear-gradient(180deg, rgba(38, 40, 48, 0.98) 0%, rgba(20, 21, 26, 0.98) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
@@ -3515,7 +3521,7 @@ body {
 /* Battle Window Premium Theme */
 .phone-content.me-profile-mode {
   background: linear-gradient(180deg, #111111 0%, #050505 100%);
-  padding: 12px;
+  padding: 8px 0;
 }
 
 .me-profile-page {
@@ -3526,10 +3532,11 @@ body {
 
 .me-profile-card {
   background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-  border: 1px solid rgba(243, 229, 186, 0.15);
+  border-top: 1px solid rgba(243, 229, 186, 0.15);
+  border-bottom: 1px solid rgba(243, 229, 186, 0.15);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
-  padding: 20px;
+  padding: 16px;
+  width: 100%;
 }
 
 .me-profile-header {

@@ -1041,7 +1041,7 @@ export default function App() {
   const workBrand = region.city.split(" ").slice(0, 2).join(" ");
   const workSpecialtyXp = formatNumber(workExperience[activeWorkFactoryId]);
   const workSpecialtyXpMax = formatNumber(getMaxWorkExperience(player, region));
-  const workEnergyPercent = clamp(Math.round((player.energy / 200) * 100), 0, 100);
+  const workEnergyPercent = clamp(Math.round((player.energy / 300) * 100), 0, 100);
   const workBonus = getWorkBonusPercent(player, region, workExperience, activeWorkFactoryId).toFixed(1);
 
   const workResources: WorkResourceItem[] = [
@@ -1933,7 +1933,7 @@ export default function App() {
                     +
                   </button>
                   <div className="work-energy-status">
-                    <span>Energy: {isAutoMode ? 0 : player.energy}/200</span>
+                    <span>Energy: {isAutoMode ? 0 : player.energy}/300</span>
                     <div className="work-energy-track">
                       <div className="work-energy-fill" style={{ width: `${isAutoMode ? 0 : workEnergyPercent}%` }} />
                     </div>

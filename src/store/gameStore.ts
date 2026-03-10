@@ -181,7 +181,7 @@ const clamp = (value: number, min: number, max: number) => Math.max(min, Math.mi
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 const formatNumber = (value: number) => new Intl.NumberFormat("en-US").format(value);
 const FACTORY_ENERGY_COST = 300;
-const FACTORY_WORK_COST: [number, number] = [12, 16];
+const FACTORY_WORK_COST: [number, number] = [300, 16];
 const BASE_STORAGE_CAPACITY = 200000;
 
 const ownerColor: Record<string, string> = {
@@ -238,7 +238,7 @@ const initialPlayer: Player = {
   xpToNext: 100,
   perkPoints: 4,
   hp: 100,
-  energy: 200,
+  energy: 300,
   energyCredits: 6000,
   time: 100,
   money: 1000,
@@ -504,7 +504,7 @@ function spendAction(player: Player, energy: number, time: number) {
 
 function getFactoryEnergyCost(player: Player) {
   const multiplier = player.stamina >= 50 ? 0.5 : 1 - player.stamina * 0.01;
-  return clamp(Math.round(FACTORY_WORK_COST[0] * multiplier), 6, FACTORY_WORK_COST[0]);
+  return clamp(Math.round(FACTORY_WORK_COST[0] * multiplier), 150, FACTORY_WORK_COST[0]);
 }
 
 function getFactoryTimeCost(player: Player) {
@@ -544,42 +544,44 @@ function runFactoryOutput(
   region: Region,
   resources: Record<string, number>,
   workExperience: WorkExperience,
-  factoryId: FactoryId
+  factoryId: FactoryId,
+  energySpent: number
 ) {
   gainFactoryExperience(player, region, workExperience, factoryId);
   const multiplier = getWorkOutputMultiplier(player, region, workExperience, factoryId);
+  const scale = energySpent / 10; // Scaling based on 10E as a base unit of production
 
   switch (factoryId) {
     case "gold": {
-      const goldGain = Math.max(1, Math.round((1 + Math.floor(player.level / 10)) * multiplier));
+      const goldGain = Math.max(1, Math.round((1 + Math.floor(player.level / 10)) * multiplier * scale));
       const storedGold = addResource(resources, player, "gold", goldGain);
-      const moneyGain = Math.round((90 + region.economy * 2 + player.intelligence * 4) * multiplier) + rand(15, 45);
+      const moneyGain = Math.round((90 + region.economy * 2 + player.intelligence * 4) * multiplier * scale) + rand(15, 45);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 18 + region.educationIndex);
+      grantXp(player, Math.round((18 + region.educationIndex) * scale));
       return `Gold +${storedGold} | Money +${moneyGain}${storedGold < goldGain ? " | Storage full" : ""}`;
     }
     case "oil": {
-      const oilGain = Math.max(1, Math.round((2 + Math.floor(player.level / 12)) * multiplier));
+      const oilGain = Math.max(1, Math.round((2 + Math.floor(player.level / 12)) * multiplier * scale));
       const storedOil = addResource(resources, player, "oil", oilGain);
-      const moneyGain = Math.round((75 + region.economy * 2 + player.intelligence * 3) * multiplier) + rand(10, 35);
+      const moneyGain = Math.round((75 + region.economy * 2 + player.intelligence * 3) * multiplier * scale) + rand(10, 35);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 16 + region.educationIndex);
+      grantXp(player, Math.round((16 + region.educationIndex) * scale));
       return `Oil +${storedOil} | Money +${moneyGain}${storedOil < oilGain ? " | Storage full" : ""}`;
     }
     case "ore": {
-      const oreGain = Math.max(1, Math.round((2 + Math.floor(player.level / 9)) * multiplier));
+      const oreGain = Math.max(1, Math.round((2 + Math.floor(player.level / 9)) * multiplier * scale));
       const storedOre = addResource(resources, player, "iron", oreGain);
-      const moneyGain = Math.round((70 + region.economy * 1.5 + player.strength * 4) * multiplier) + rand(8, 30);
+      const moneyGain = Math.round((70 + region.economy * 1.5 + player.strength * 4) * multiplier * scale) + rand(8, 30);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 18 + region.educationIndex);
+      grantXp(player, Math.round((18 + region.educationIndex) * scale));
       return `Ore +${storedOre} | Money +${moneyGain}${storedOre < oreGain ? " | Storage full" : ""}`;
     }
     case "uranium": {
-      const uraniumGain = Math.max(1, Math.round((1 + Math.floor(player.level / 16)) * multiplier));
+      const uraniumGain = Math.max(1, Math.round((1 + Math.floor(player.level / 16)) * multiplier * scale));
       const storedUranium = addResource(resources, player, "uranium", uraniumGain);
-      const moneyGain = Math.round((120 + region.economy * 2.5 + player.intelligence * 6) * multiplier) + rand(20, 60);
+      const moneyGain = Math.round((120 + region.economy * 2.5 + player.intelligence * 6) * multiplier * scale) + rand(20, 60);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 24 + region.educationIndex);
+      grantXp(player, Math.round((24 + region.educationIndex) * scale));
       return `Uranium +${storedUranium} | Money +${moneyGain}${storedUranium < uraniumGain ? " | Storage full" : ""}`;
     }
     case "diamond": {
@@ -617,13 +619,14 @@ function runFactoryOutput(
     case "logistics": {
       const plan = departmentPlans[player.role];
       const beforeIndex = region[plan.indexKey];
-      region[plan.indexKey] = clamp(region[plan.indexKey] + 1, 1, 10);
-      region.economy = clamp(region.economy + plan.economyBoost + Math.floor(region.developmentIndex / 5), 0, 100);
-      region.defense = clamp(region.defense + plan.defenseBoost, 20, 100);
-      region.stability = clamp(region.stability + plan.stabilityBoost, 0, 100);
-      player.influence = clamp(player.influence + plan.influenceBoost + Math.floor(region.educationIndex / 4), 0, 999999999);
-      grantXp(player, 22 + region.educationIndex);
-      return `${plan.label} +${region[plan.indexKey] - beforeIndex} | Economy +${plan.economyBoost} | Stability +${plan.stabilityBoost}`;
+      const gainIndex = Math.round(1 * scale / 10);
+      region[plan.indexKey] = clamp(region[plan.indexKey] + Math.max(1, gainIndex), 1, 10);
+      region.economy = clamp(region.economy + (plan.economyBoost + Math.floor(region.developmentIndex / 5)) * scale / 10, 0, 100);
+      region.defense = clamp(region.defense + plan.defenseBoost * scale / 10, 20, 100);
+      region.stability = clamp(region.stability + plan.stabilityBoost * scale / 10, 0, 100);
+      player.influence = clamp(player.influence + (plan.influenceBoost + Math.floor(region.educationIndex / 4)) * scale / 10, 0, 999999999);
+      grantXp(player, Math.round((22 + region.educationIndex) * scale));
+      return `${plan.label} +${region[plan.indexKey] - beforeIndex} | Economy upgraded | Influence expanded`;
     }
     default:
       return "No output";
@@ -743,7 +746,7 @@ export const useGameStore = create<GameState>((set) => ({
       const region = regions.find((entry) => entry.id === player.locationId)!;
 
       if (kind === "rest") {
-        player.energy = clamp(player.energy + 30 + region.healthIndex * 2, 0, 200);
+        player.energy = clamp(player.energy + 30 + region.healthIndex * 2, 0, 300);
         player.time = clamp(player.time + 28 + region.healthIndex, 0, 120);
         player.hp = clamp(player.hp + 12 + region.healthIndex, 0, 120);
         return { player, log: withLog(log, state.day, "Rested and recovered.") };
@@ -880,19 +883,31 @@ export const useGameStore = create<GameState>((set) => ({
         return { log };
       }
 
+      let actualEnergySpent = 0;
       if (mode === "auto") {
         if (player.energyCredits < FACTORY_ENERGY_COST) {
           log = withLog(log, state.day, `Auto work stopped at ${label}: need ${FACTORY_ENERGY_COST} E.`);
           return { log };
         }
         player.energyCredits -= FACTORY_ENERGY_COST;
-      } else if (!spendAction(player, getFactoryEnergyCost(player), getFactoryTimeCost(player))) {
-        log = withLog(log, state.day, `Not enough energy/time to work at ${label}.`);
-        return { log };
+        actualEnergySpent = 300; // Auto work acts as a full 300E cycle
+      } else {
+        actualEnergySpent = player.energy; // Manual work spends EVERYTHING available
+        if (actualEnergySpent < 10) {
+          log = withLog(log, state.day, `Not enough energy to work at ${label}. Need at least 10E.`);
+          return { log };
+        }
+        const timeNeeded = getFactoryTimeCost(player);
+        if (player.time < timeNeeded) {
+          log = withLog(log, state.day, `Not enough time to work at ${label}.`);
+          return { log };
+        }
+        player.energy = 0;
+        player.time -= timeNeeded;
       }
 
-      const outputMessage = runFactoryOutput(player, region, resources, workExperience, factoryId);
-      log = withLog(log, state.day, `${mode === "auto" ? "Auto cycle" : "Worked"} at ${label}. ${outputMessage}.`);
+      const outputMessage = runFactoryOutput(player, region, resources, workExperience, factoryId, actualEnergySpent);
+      log = withLog(log, state.day, `${mode === "auto" ? "Auto cycle" : "Full work burst"} at ${label}. ${outputMessage}.`);
       success = true;
       return { player, resources, regions, workExperience, log };
     });
@@ -1079,8 +1094,10 @@ export const useGameStore = create<GameState>((set) => ({
       const player = { ...state.player };
       const regions = state.regions.map((region) => ({ ...region }));
 
-      // Energy: 300E / 10min (600s) = 0.5E per tick.
-      player.energy = clamp(player.energy + 0.5, 0, 300);
+      // Energy: Discrete +10E refill every 10min (600 ticks).
+      if (dayStarted) {
+        player.energy = clamp(player.energy + 10, 0, 300);
+      }
       player.time = clamp(player.time + 0.1, 0, 120);
 
       const parties = dayStarted
