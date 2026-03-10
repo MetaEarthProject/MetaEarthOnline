@@ -19,7 +19,7 @@ import type { FactoryId, Region, LawType, LawCategory, Bill } from "./types";
 import type { Language } from "./store/gameStore";
 
 type AppTab = "home" | "storage" | "map" | "parliament" | "work" | "wars" | "profile";
-type IconName = Exclude<AppTab, "parliament"> | "search" | "mail" | "dots" | "fist" | "flame" | "back" | "gear" | "strength" | "stamina" | "intelligence" | "charisma";
+type IconName = Exclude<AppTab, "parliament"> | "search" | "mail" | "dots" | "fist" | "flame" | "back" | "gear" | "strength" | "stamina" | "intelligence" | "charisma" | "vault" | "fuel" | "bolt" | "chest" | "ore" | "uranium" | "infantry" | "tank" | "aircraft" | "ship";
 type WorkResourceTone = "gold" | "oil" | "ore" | "uranium" | "diamond" | "liquid_oxygen" | "helium_3" | "rivalium";
 type WorkFactoryTone = "gold" | "oil" | "ore" | "uranium" | "diamond" | "liquid_oxygen" | "helium_3" | "rivalium" | "energy";
 type WarConflictTone = "danger" | "alert" | "friendly";
@@ -262,6 +262,81 @@ function Icon({ name, className }: { name: IconName; className?: string }) {
           <path d="M12 4.5l2.2 4.5 5 .7-3.6 3.5.8 5-4.4-2.3-4.4 2.3.8-5-3.6-3.5 5-.7L12 4.5z" fill="currentColor" />
         </svg>
       );
+    case "vault":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="12.5" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 10v1M12 14v1M9.5 12.5h1M13.5 12.5h1" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "fuel":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M14 3v4M8 3v4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 7h14v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="14" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "bolt":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" />
+        </svg>
+      );
+    case "chest":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M3 8h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M10 8v3h4V8" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "ore":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M12 3l9 4-9 4-9-4 9-4zM3 7v10l9 4 9-4V7" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 11v10M3 12l9 4 9-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "uranium":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 12L7.5 4.5M12 12l4.5-7.5M12 12h9M12 12v9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+        </svg>
+      );
+    case "infantry":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <circle cx="12" cy="7" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M5 21v-3a4 4 0 014-4h6a4 4 0 014 4v3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
+    case "tank":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M4 14h16l1-3h-4l-1-3H8l-1 3H3l1 3z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M2 14v4a2 2 0 002 2h16a2 2 0 002-2v-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="6" cy="17.5" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="17.5" r="1.5" fill="currentColor" />
+          <circle cx="18" cy="17.5" r="1.5" fill="currentColor" />
+        </svg>
+      );
+    case "aircraft":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M21 16l-8-5V3.5a1.5 1.5 0 00-3 0V11l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-3.5l8 2.5v-2z" fill="currentColor" />
+        </svg>
+      );
+    case "ship":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M2 17l2 4h16l2-4H2z" fill="currentColor" />
+          <path d="M12 17V4l7 3-7 3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        </svg>
+      );
   }
 }
 
@@ -346,18 +421,27 @@ function StorageMetricCard({
   label,
   value,
   detail,
-  tone
+  tone,
+  icon
 }: {
   label: string;
   value: string;
   detail: string;
   tone: StorageTone;
+  icon: IconName;
 }) {
   return (
-    <article className={`storage-card ${tone}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{detail}</small>
+    <article className={`me-storage-card ${tone}`}>
+      <div className="me-storage-card-header">
+        <div className="me-storage-card-icon-frame">
+          <Icon name={icon} className="me-storage-card-icon" />
+        </div>
+        <div className="me-storage-card-info">
+          <span>{label}</span>
+          <strong>{value}</strong>
+        </div>
+      </div>
+      <small className="me-storage-card-detail">{detail}</small>
     </article>
   );
 }
@@ -647,40 +731,44 @@ export default function App() {
       label: "Vault reserve",
       value: `${formatNumber(resources.gold * 1250)} kg`,
       detail: `${resources.gold} raw gold units secured | ${regionIndexSummary}`,
-      tone: "gold" as const
+      tone: "gold" as const,
+      icon: "vault" as const
     },
     {
       label: "Fuel stock",
       value: `${formatNumber(resources.oil * 6720)} bbl`,
       detail: `${resources.oil} oil shipments in storage`,
-      tone: "blue" as const
+      tone: "blue" as const,
+      icon: "fuel" as const
     },
     {
       label: t.ui.fieldEnergy,
       value: `${player.energy}/200`,
       detail: `${storageFillPercent}% full | ${formatNumber(storageUsage)} / ${formatNumber(storageCapacity)} cap`,
-      tone: "green" as const
+      tone: "green" as const,
+      icon: "bolt" as const
     },
     {
       label: t.ui.warChest,
       value: `$${formatNumber(player.money)}`,
       detail: `Influence ${player.influence} | Level ${player.level}`,
-      tone: "red" as const
+      tone: "red" as const,
+      icon: "chest" as const
     }
   ];
 
   const storageLogistics = [
-    { label: "Ore cargo", value: `${formatNumber(resources.iron * 1400)} kg` },
-    { label: "Uranium cores", value: `${formatNumber(resources.uranium * 20)} g` },
-    { label: "Storage cap", value: formatNumber(storageCapacity) },
-    { label: "Region indexes", value: regionIndexSummary }
+    { label: "Ore cargo", value: `${formatNumber(resources.iron * 1400)} kg`, icon: "ore" as const },
+    { label: "Uranium cores", value: `${formatNumber(resources.uranium * 20)} g`, icon: "uranium" as const },
+    { label: "Storage cap", value: formatNumber(storageCapacity), icon: "storage" as const },
+    { label: "Region indexes", value: regionIndexSummary, icon: "search" as const }
   ];
 
   const storageArsenal = [
-    { label: "Infantry kits", value: formatNumber(military.infantry), detail: `Military index ${region.militaryIndex} war scaling` },
-    { label: "Tank columns", value: formatNumber(military.tanks), detail: "Heavy assault armor" },
-    { label: "Aircraft", value: formatNumber(military.aircraft), detail: "Air support hangars" },
-    { label: "Navy", value: formatNumber(military.navy), detail: "Sea control fleets" }
+    { label: "Infantry kits", value: formatNumber(military.infantry), detail: `Military index ${region.militaryIndex} war scaling`, icon: "infantry" as const },
+    { label: "Tank columns", value: formatNumber(military.tanks), detail: "Heavy assault armor", icon: "tank" as const },
+    { label: "Aircraft", value: formatNumber(military.aircraft), detail: "Air support hangars", icon: "aircraft" as const },
+    { label: "Navy", value: formatNumber(military.navy), detail: "Sea control fleets", icon: "ship" as const }
   ];
 
   const workBrand = region.city.split(" ").slice(0, 2).join(" ");
@@ -1223,7 +1311,7 @@ export default function App() {
 
           {isStorageTab && (
             <div className="storage-page">
-              <section className="storage-grid">
+              <section className="me-storage-grid">
                 {storageOverview.map((item) => (
                   <StorageMetricCard
                     key={item.label}
@@ -1231,38 +1319,49 @@ export default function App() {
                     value={item.value}
                     detail={item.detail}
                     tone={item.tone}
+                    icon={item.icon}
                   />
                 ))}
               </section>
 
-              <section className="storage-panel">
+              <section className="me-storage-panel">
                 <div className="storage-panel-head">
                   <h2>Regional storage</h2>
-                  <span>{region.city} depot</span>
+                  <span>{region.city} logistics depot</span>
                 </div>
-                <div className="storage-list two-col">
+                <div className="me-storage-list two-col">
                   {storageLogistics.map((item) => (
-                    <article key={item.label} className="storage-list-item">
-                      <span>{item.label}</span>
-                      <strong>{item.value}</strong>
+                    <article key={item.label} className="me-storage-list-item">
+                      <div className="me-storage-list-icon">
+                        <Icon name={item.icon} className="me-storage-mini-icon" />
+                      </div>
+                      <div className="me-storage-list-copy">
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                      </div>
                     </article>
                   ))}
                 </div>
               </section>
 
-              <section className="storage-panel">
+              <section className="me-storage-panel">
                 <div className="storage-panel-head">
                   <h2>Military stock</h2>
                   <span>Ready for deployment</span>
                 </div>
-                <div className="storage-list">
+                <div className="me-storage-list">
                   {storageArsenal.map((item) => (
-                    <article key={item.label} className="storage-list-item expanded">
-                      <div>
-                        <span>{item.label}</span>
+                    <article key={item.label} className="me-storage-list-item expanded">
+                      <div className="me-storage-list-icon">
+                        <Icon name={item.icon} className="me-storage-mini-icon" />
+                      </div>
+                      <div className="me-storage-list-copy">
+                        <div className="me-storage-list-top">
+                          <span>{item.label}</span>
+                          <strong>{item.value}</strong>
+                        </div>
                         <small>{item.detail}</small>
                       </div>
-                      <strong>{item.value}</strong>
                     </article>
                   ))}
                 </div>
