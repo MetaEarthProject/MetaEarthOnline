@@ -1346,7 +1346,7 @@ export default function App() {
     .join(" ");
   const phoneContentClassName = [
     "phone-content",
-    isProfileTab ? "profile-mode" : "",
+    isProfileTab ? "me-profile-mode" : "",
     isWorkTab ? "work-mode" : "",
     isWarsTab ? "wars-mode" : "",
     isMapTab ? "map-mode" : "",
@@ -1401,7 +1401,11 @@ export default function App() {
         {isProfileTab ? (
           <header className="phone-topbar">
             <div className="topbar-icon-btn">
-              <button type="button" onClick={() => setLanguage(language === 'en' ? 'ko' : 'en')}>
+              <button
+                type="button"
+                className="me-lang-btn"
+                onClick={() => setLanguage(language === 'en' ? 'ko' : 'en')}
+              >
                 {language.toUpperCase()}
               </button>
             </div>
