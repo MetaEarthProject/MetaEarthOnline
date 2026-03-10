@@ -19,7 +19,7 @@ import type { FactoryId, Region, LawType, LawCategory, Bill } from "./types";
 import type { Language } from "./store/gameStore";
 
 type AppTab = "home" | "storage" | "map" | "parliament" | "work" | "wars" | "profile";
-type IconName = Exclude<AppTab, "parliament"> | "search" | "mail" | "dots" | "fist" | "flame" | "back" | "gear";
+type IconName = Exclude<AppTab, "parliament"> | "search" | "mail" | "dots" | "fist" | "flame" | "back" | "gear" | "strength" | "stamina" | "intelligence" | "charisma";
 type WorkResourceTone = "gold" | "oil" | "ore" | "uranium" | "diamond" | "liquid_oxygen" | "helium_3" | "rivalium";
 type WorkFactoryTone = "gold" | "oil" | "ore" | "uranium" | "diamond" | "liquid_oxygen" | "helium_3" | "rivalium" | "energy";
 type WarConflictTone = "danger" | "alert" | "friendly";
@@ -237,6 +237,31 @@ function Icon({ name, className }: { name: IconName; className?: string }) {
           <path d="M5 20c.5-3.4 3.3-5.5 7-5.5s6.5 2.1 7 5.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
         </svg>
       );
+    case "strength":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M7.2 11V7.7c0-.8.6-1.4 1.3-1.4.6 0 1.1.4 1.3 1V6.3c0-.8.6-1.4 1.4-1.4.7 0 1.3.5 1.4 1.2.2-.5.7-.9 1.3-.9.8 0 1.4.7 1.4 1.5v1.1c.2-.5.7-.8 1.3-.8.8 0 1.4.7 1.4 1.5v4.9c0 4.1-2.9 6.8-6.7 6.8-2.8 0-5.1-1.5-6.3-4.2L4.4 12c-.3-.6-.1-1.4.5-1.8.6-.4 1.4-.2 1.8.5l.5.8z" fill="currentColor" />
+        </svg>
+      );
+    case "stamina":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M12.8 2.8c1.8 3.5-.3 5.3-1.8 7.1-1.5 1.7-2.7 3.2-2.7 5.5 0 3.2 2.3 5.7 5.6 5.7 3.1 0 5.8-2.4 5.8-6 0-3-1.8-5.2-4-7.6-.2 2-.9 3.3-2 4.3.1-2.7-.5-5.6-.9-8z" fill="currentColor" />
+        </svg>
+      );
+    case "intelligence":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M17.8 6.2l-1.6 1.6M7.8 16.2l-1.6 1.6M17.8 17.8l-1.6-1.6M7.8 7.8L6.2 6.2" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="square" />
+        </svg>
+      );
+    case "charisma":
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M12 4.5l2.2 4.5 5 .7-3.6 3.5.8 5-4.4-2.3-4.4 2.3.8-5-3.6-3.5 5-.7L12 4.5z" fill="currentColor" />
+        </svg>
+      );
   }
 }
 
@@ -259,24 +284,41 @@ function ProfileMetric({
 }) {
   const { language } = useGameStore();
   const t = translations[language];
+  const iconName = label.toLowerCase() as IconName;
+
   return (
-    <div className="profile-metric-row">
-      <div className="profile-metric-copy">
-        <div className="profile-metric-stat">
-          <span>{label}</span>
-          <div>
-            <strong>{value}</strong>
-            <small>Rating {rating}</small>
+    <div className="me-perk-row">
+      <div className="me-perk-icon-shell">
+        <Icon name={iconName} className="me-perk-icon" />
+      </div>
+      <div className="me-perk-info">
+        <div className="me-perk-header">
+          <span className="me-perk-name">{label}</span>
+          <div className="me-perk-value-pill">
+            <strong className="me-perk-lvl">{value}</strong>
+            <span className="me-perk-rate">~{rating}</span>
           </div>
         </div>
-        <p>{description}</p>
-        {upgradeCost && <small>{upgradeCost} {t.ui.pointsReady}</small>}
+        <p className="me-perk-bio">{description}</p>
+        {upgradeCost && (
+          <div className="me-perk-cost-row">
+            <span className="me-perk-cost-label">Cost:</span>
+            <strong className="me-perk-cost-val">{upgradeCost} points</strong>
+          </div>
+        )}
       </div>
-      {onUpgrade && (
-        <button type="button" className="rr-profile-upgrade-btn" onClick={onUpgrade} disabled={!canUpgrade}>
-          {t.ui.upgrade}
-        </button>
-      )}
+      <div className="me-perk-cta-shell">
+        {onUpgrade && (
+          <button
+            type="button"
+            className="me-perk-btn"
+            onClick={onUpgrade}
+            disabled={!canUpgrade}
+          >
+            {t.ui.upgrade}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -706,36 +748,6 @@ export default function App() {
         tone: "diamond",
         owner: "Emir Hassan",
         founded: `${t.ui.founded}: 3 January 2021 14:00`
-      },
-      {
-        id: "liquid_oxygen",
-        name: `${workBrand} Aero`,
-        specialty: t.factories.liquid_oxygen,
-        level: 60 + (resources.liquid_oxygen || 0) * 3 + player.level + region.developmentIndex * 2,
-        badge: "O2",
-        tone: "liquid_oxygen",
-        owner: "Elena Rostova",
-        founded: `${t.ui.founded}: 11 May 2022 09:30`
-      },
-      {
-        id: "helium_3",
-        name: `${workBrand} Lunar`,
-        specialty: t.factories.helium_3,
-        level: 40 + (resources.helium_3 || 0) * 4 + player.level + region.educationIndex * 6,
-        badge: "HE",
-        tone: "helium_3",
-        owner: "Sato Jin",
-        founded: `${t.ui.founded}: 25 August 2023 11:15`
-      },
-      {
-        id: "rivalium",
-        name: `State Rivalium`,
-        specialty: t.factories.rivalium,
-        level: 20 + (resources.rivalium || 0) * 5 + player.level + region.militaryIndex * 8,
-        badge: "RV",
-        tone: "rivalium",
-        owner: activeParty?.name ?? "State Command",
-        founded: `${t.ui.founded}: 12 December 2024 16:45`
       },
       {
         id: "logistics",
@@ -1674,62 +1686,62 @@ export default function App() {
           )}
 
           {isProfileTab && (
-            <div className="profile-page rr-profile-page">
-              <section className="rr-profile-card">
-                <div className="rr-profile-header">
-                  <div className="rr-profile-avatar-frame">
-                    <div className="profile-avatar rr-profile-avatar">{roleInitials}</div>
+            <div className="me-profile-page">
+              <section className="me-profile-card">
+                <div className="me-profile-header">
+                  <div className="me-profile-avatar-frame">
+                    <div className="profile-avatar me-profile-avatar">{roleInitials}</div>
                   </div>
-                  <div className="rr-profile-identity">
+                  <div className="me-profile-identity">
                     <h2>{profileName}</h2>
                     <p>{player.role} of {region.city}</p>
-                    <div className="rr-profile-level-row">
-                      <span className="rr-profile-level">Level {player.level}</span>
-                      <div className="rr-profile-level-track" aria-hidden="true">
+                    <div className="me-profile-level-row">
+                      <span className="me-profile-level">Level {player.level}</span>
+                      <div className="me-profile-level-track" aria-hidden="true">
                         <span style={{ width: `${xpPercent}%` }} />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="rr-profile-money-row">
+                <div className="me-profile-money-row">
                   <strong>${formatNumber(profileWealth)}</strong>
                   <span>Rank {formatNumber(profileRankScore)}</span>
                 </div>
 
-                <div className="rr-profile-meter-stack">
-                  <div className="rr-profile-meter wealth">
-                    <div className="rr-profile-meter-copy">
+                <div className="me-profile-meter-stack">
+                  <div className="me-profile-meter wealth">
+                    <div className="me-profile-meter-copy">
                       <span>Health power</span>
                       <strong>{player.hp}/120</strong>
                     </div>
-                    <div className="rr-profile-meter-track" aria-hidden="true">
+                    <div className="me-profile-meter-track" aria-hidden="true">
                       <span style={{ width: `${hpPercent}%` }} />
                     </div>
                   </div>
-                  <div className="rr-profile-meter influence">
-                    <div className="rr-profile-meter-copy">
+                  <div className="me-profile-meter influence">
+                    <div className="me-profile-meter-copy">
                       <span>Influence control</span>
                       <strong>{controlPercent}%</strong>
                     </div>
-                    <div className="rr-profile-meter-track" aria-hidden="true">
+                    <div className="me-profile-meter-track" aria-hidden="true">
                       <span style={{ width: `${controlPercent}%` }} />
                     </div>
                   </div>
                 </div>
 
-                <button type="button" className="rr-profile-cta" onClick={() => action("campaign")}>
+                <button type="button" className="me-profile-cta" onClick={() => action("campaign")}>
                   Play God
                 </button>
               </section>
 
-              <section className="rr-profile-panel">
-                <div className="rr-profile-select-head">
+              <section className="me-profile-panel">
+                <div className="me-profile-select-head">
                   <span>Available careers</span>
                 </div>
-                <div className="rr-profile-select-wrap">
+                <div className="me-profile-select-wrap">
                   <select
-                    className="rr-profile-select"
+                    className="me-profile-select"
                     value={profileCareerTrack}
                     onChange={(event) => setProfileCareerTrack(event.target.value)}
                   >
@@ -1741,10 +1753,10 @@ export default function App() {
                   </select>
                 </div>
 
-                <div className="rr-profile-activity-list">
+                <div className="me-profile-activity-list">
                   {occupationCards.map((item, index) => (
-                    <article key={item.title} className="rr-profile-activity">
-                      <div className={`rr-profile-activity-icon icon-${index + 1}`} aria-hidden="true">
+                    <article key={item.title} className="me-profile-activity">
+                      <div className={`me-profile-activity-icon icon-${index + 1}`} aria-hidden="true">
                         {index + 1}
                       </div>
                       <div>
@@ -1756,8 +1768,8 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="rr-profile-stats">
-                <div className="rr-profile-stats-head">
+              <section className="me-profile-stats">
+                <div className="me-profile-stats-head">
                   <span>Perk upgrades</span>
                   <strong>
                     {formatNumber(player.perkPoints)} point{player.perkPoints === 1 ? "" : "s"} ready
@@ -1801,16 +1813,16 @@ export default function App() {
                 />
               </section>
 
-              <section className="rr-profile-action-row">
-                <button type="button" className="rr-profile-action-btn" onClick={joinDominantParty}>
+              <section className="me-profile-action-row">
+                <button type="button" className="me-profile-action-btn" onClick={joinDominantParty}>
                   Join Dominant Party
                 </button>
-                <button type="button" className="rr-profile-action-btn secondary" onClick={createParty}>
+                <button type="button" className="me-profile-action-btn secondary" onClick={createParty}>
                   Create Party
                 </button>
               </section>
 
-              <p className="rr-profile-laws">Tax {laws.taxRate}% | Military {laws.militaryBudget}% | Tariff {laws.tradeTariff}%</p>
+              <p className="me-profile-laws">Tax {laws.taxRate}% | Military {laws.militaryBudget}% | Tariff {laws.tradeTariff}%</p>
             </div>
           )}
         </section>
