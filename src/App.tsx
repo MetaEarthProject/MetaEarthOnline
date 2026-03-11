@@ -555,14 +555,17 @@ function ParliamentBlocRow({ bloc }: { bloc: ParliamentBloc }) {
   const { language } = useGameStore();
   const t = translations[language];
   return (
-    <article className="parliament-party-row">
+    <article className={`parliament-party-row ${bloc.tone}`}>
       <div className="parliament-party-copy">
         <strong>{bloc.name}</strong>
         <span>
           {t.ui.members}: {formatNumber(bloc.members)}
         </span>
         <span className="parliament-party-detail">
-          {t.ui.level} {bloc.members.toString().slice(0, 2)} ({bloc.share.toFixed(2)}%), {bloc.location}
+          {bloc.share.toFixed(1)}% · {bloc.location}
+        </span>
+        <span className="parliament-party-seats-badge">
+          {bloc.seats} seats
         </span>
       </div>
       <div className="parliament-party-emblem-wrap">
@@ -1681,7 +1684,7 @@ export default function App() {
                     <span className="parliament-kicker">Parliament: {region.country}</span>
                     <h2>{region.name} Chamber</h2>
                   </div>
-                  <small>{PARLIAMENT_TOTAL_SEATS} seats</small>
+                  <small>{PARLIAMENT_TOTAL_SEATS} SEATS</small>
                 </div>
 
                 <div className="parliament-meta">
@@ -1691,11 +1694,51 @@ export default function App() {
                   <strong>{parliamentNextVote}</strong>
                 </div>
 
+                {/* Election Info Grid */}
+                <div className="parliament-election-strip">
+                  <h3>⏱ Election Cycle</h3>
+                  <div className="parliament-election-grid">
+                    <div className="parliament-election-card">
+                      <span className="ec-label">Cycle</span>
+                      <span className="ec-value">Every 5 days</span>
+                    </div>
+                    <div className="parliament-election-card">
+                      <span className="ec-label">Voting Window</span>
+                      <span className="ec-value green">24 hours</span>
+                    </div>
+                    <div className="parliament-election-card">
+                      <span className="ec-label">Parliament Size</span>
+                      <span className="ec-value gold">{PARLIAMENT_TOTAL_SEATS} seats</span>
+                    </div>
+                    <div className="parliament-election-card">
+                      <span className="ec-label">1% Threshold</span>
+                      <span className="ec-value">{Math.max(1, Math.ceil(PARLIAMENT_TOTAL_SEATS * 0.01))} votes min</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* State Info */}
+                <div className="parliament-state-strip">
+                  <div className="parliament-state-row">
+                    <span className="ps-label">Government</span>
+                    <span className="ps-value gold">{region.governmentType ?? "Parliamentary Republic"}</span>
+                  </div>
+                  <div className="parliament-state-row">
+                    <span className="ps-label">Majority Target</span>
+                    <span className="ps-value">{Math.floor(PARLIAMENT_TOTAL_SEATS / 2) + 1} seats (50%+)</span>
+                  </div>
+                  <div className="parliament-state-row">
+                    <span className="ps-label">State Stability</span>
+                    <span className="ps-value">{region.stability}%</span>
+                  </div>
+                </div>
+
+                {/* Majority Strip */}
                 <div className="parliament-majority-strip">
                   <div className="parliament-majority-copy">
                     <strong>{parliamentLeadBloc.name}</strong>
                     <span>
-                      {parliamentLeadBloc.seats} seats held | Majority target {Math.floor(PARLIAMENT_TOTAL_SEATS / 2) + 1}
+                      {parliamentLeadBloc.seats}/{PARLIAMENT_TOTAL_SEATS} seats · {parliamentLeadBloc.share.toFixed(1)}%
                     </span>
                   </div>
                   <div className="parliament-majority-track" aria-hidden="true">
@@ -1703,10 +1746,84 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Party List */}
                 <div className="parliament-party-list">
                   {parliamentBlocs.map((bloc) => (
                     <ParliamentBlocRow key={bloc.id} bloc={bloc} />
                   ))}
+                </div>
+
+                {/* State Officials */}
+                <div className="parliament-officials-strip">
+                  <h3>👔 State Officials</h3>
+                  <div className="parliament-official-card">
+                    <div className="parliament-official-icon leader">👑</div>
+                    <div className="parliament-official-info">
+                      <strong>State Leader</strong>
+                      <span>Accepts war-related laws ahead of time</span>
+                    </div>
+                    <span className="parliament-official-name">{parliamentLeadBloc.name}</span>
+                  </div>
+                  <div className="parliament-official-card">
+                    <div className="parliament-official-icon minister">💰</div>
+                    <div className="parliament-official-info">
+                      <strong>Minister of Economics</strong>
+                      <span>Accepts/cancels economic laws</span>
+                    </div>
+                    <span className="parliament-official-name">—</span>
+                  </div>
+                  <div className="parliament-official-card">
+                    <div className="parliament-official-icon foreign">🌐</div>
+                    <div className="parliament-official-info">
+                      <strong>Foreign Minister</strong>
+                      <span>Accepts/cancels international laws</span>
+                    </div>
+                    <span className="parliament-official-name">—</span>
+                  </div>
+                  <div className="parliament-official-card">
+                    <div className="parliament-official-icon advisor">📊</div>
+                    <div className="parliament-official-info">
+                      <strong>Economic Advisor</strong>
+                      <span>Authorized to issue economic laws</span>
+                    </div>
+                    <span className="parliament-official-name">—</span>
+                  </div>
+                </div>
+
+                {/* Voting Rules */}
+                <div className="parliament-rules-strip">
+                  <h3>📜 Voting Thresholds</h3>
+                  <div className="parliament-rule-item">
+                    <div className="parliament-rule-badge">&gt;50%</div>
+                    <div className="parliament-rule-copy">
+                      <strong>Standard Laws</strong>
+                      <span>Most laws require more than 50% "Pro" votes to pass</span>
+                    </div>
+                  </div>
+                  <div className="parliament-rule-item">
+                    <div className="parliament-rule-badge high">&gt;80%</div>
+                    <div className="parliament-rule-copy">
+                      <strong>Dictatorship / Dominant-Party</strong>
+                      <span>Requires 80%+ "Pro" votes to change state type</span>
+                    </div>
+                  </div>
+                  <div className="parliament-rule-item">
+                    <div className="parliament-rule-badge">{Math.floor(PARLIAMENT_TOTAL_SEATS / 2) + 1}+</div>
+                    <div className="parliament-rule-copy">
+                      <strong>Instant Pass</strong>
+                      <span>Laws pass instantly if "Pro" votes exceed half the total seats</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Requirements Note */}
+                <div className="parliament-requirements">
+                  <span className="req-icon">ℹ️</span>
+                  <p className="req-text">
+                    To vote or run for parliament, players must be at least <strong>Level 50</strong> and
+                    have had <strong>residency</strong> in the state for at least <strong>24 hours</strong>.
+                    Parties need at least <strong>1%</strong> of total votes to gain seats.
+                  </p>
                 </div>
               </section>
 
