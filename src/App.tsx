@@ -2282,9 +2282,9 @@ export default function App() {
                   <div className="me-profile-avatar-frame">
                     <div className="profile-avatar me-profile-avatar">{roleInitials}</div>
                   </div>
-                  <div className="me-profile-identity">
+                  <div className="me-profile-identity" style={{ flex: 1 }}>
                     <h2>{profileName}</h2>
-                    <p>{player.role} of {region.city}</p>
+                    <p style={{ color: "#8b949e", fontSize: "0.85rem", margin: "4px 0" }}>{player.role} of {region.city}</p>
                     <div className="me-profile-level-row">
                       <span className="me-profile-level">Level {player.level}</span>
                       <div className="me-profile-level-track" aria-hidden="true">
@@ -2294,9 +2294,23 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="me-profile-money-row">
-                  <strong>${formatNumber(profileWealth)}</strong>
-                  <span>Rank {formatNumber(profileRankScore)}</span>
+                <div className="me-profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '20px' }}>
+                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Wealth</span>
+                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px' }}>${formatNumber(profileWealth)}</strong>
+                  </div>
+                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Gold Hold</span>
+                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px', color: '#ffcc00' }}>{formatNumber(resources.gold ?? 0)}G</strong>
+                  </div>
+                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Rank Score</span>
+                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px' }}>{formatNumber(profileRankScore)}</strong>
+                  </div>
+                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Residency</span>
+                    <strong style={{ display: 'inline-block', fontSize: '1rem', marginTop: '7px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }} title={region.name}>{region.name}</strong>
+                  </div>
                 </div>
 
                 <div className="me-profile-meter-stack">
@@ -2320,8 +2334,8 @@ export default function App() {
                   </div>
                 </div>
 
-                <button type="button" className="me-profile-cta" onClick={() => action("campaign")}>
-                  Play God
+                <button type="button" className="me-profile-cta" onClick={() => action("play_game")} disabled={player.dailyGamePlays >= 5} style={{ opacity: player.dailyGamePlays >= 5 ? 0.5 : 1 }}>
+                  Play Game ({player.dailyGamePlays}/5)
                 </button>
               </section>
 

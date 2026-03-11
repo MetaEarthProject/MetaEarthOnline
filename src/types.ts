@@ -64,6 +64,7 @@ export type Player = {
   stamina: number;
   locationId: string;
   partyId: string | null;
+  dailyGamePlays: number;
 };
 
 export type LawCategory = "economic" | "political" | "government";

@@ -538,7 +538,8 @@ function grantXp(player: Player, amount: number) {
   while (player.xp >= player.xpToNext) {
     player.xp -= player.xpToNext;
     player.level += 1;
-    player.xpToNext = Math.floor(player.xpToNext * 1.28);
+    const multiplier = Math.min(1.1 + (player.level * 0.02), 1.5);
+    player.xpToNext = Math.floor(player.xpToNext * multiplier + 10);
     player.influence += 2;
     player.perkPoints += 2;
   }
@@ -748,7 +749,7 @@ export const useGameStore = create<GameState>((set) => ({
   player: initialPlayer,
   parties: initialParties,
   regions: initialRegions,
-  resources: { oil: 10, gold: 8, iron: 22, uranium: 1, food: 25 },
+  resources: { oil: 10, gold: 1000, iron: 22, uranium: 1, food: 25 },
   military: { infantry: 18, tanks: 2, aircraft: 0, navy: 0 },
   workExperience: initialWorkExperience,
   laws: { taxRate: 12, militaryBudget: 15, tradeTariff: 8 },
