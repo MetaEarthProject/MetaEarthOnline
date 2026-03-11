@@ -1165,14 +1165,16 @@ export default function App() {
   const mapFocusRegion = mapFocus.regionId ? regions.find((entry) => entry.id === mapFocus.regionId) ?? null : null;
   const mapFocusCountryName = mapFocus.countryName ?? mapFocusRegion?.country ?? region.country;
   const mapFocusParty = mapFocusRegion ? parties.find((entry) => entry.id === mapFocusRegion.owner) ?? null : null;
-  const mapStateLabel = mapFocusRegion ? mapFocusParty?.name ?? mapFocusRegion.country : "Unmapped territory";
+  const mapStateLabel = mapFocusRegion 
+    ? (mapFocusRegion.isIndependent ? "Independent Region" : (mapFocusParty?.name ?? mapFocusRegion.country))
+    : "Independent Region";
   const mapRegionLabel = mapFocusRegion ? `${mapFocusRegion.city} / ${mapFocusRegion.name}` : mapFocusCountryName;
   const isCurrentMapRegion = mapFocusRegion?.id === region.id;
   const mapFocusCopy = mapFocusRegion
     ? isCurrentMapRegion
-      ? `${mapFocusRegion.country} | ${formatRegionIndexes(mapFocusRegion)} | Drag to navigate the world map.`
-      : `${mapFocusRegion.country} | Stability ${mapFocusRegion.stability}% | ${formatRegionIndexes(mapFocusRegion)}`
-    : `${mapFocusCountryName} has no active playable region yet. Drag to explore and select a highlighted territory.`;
+      ? `${mapFocusRegion.country} | ${formatRegionIndexes(mapFocusRegion)} | ${mapFocusRegion.isIndependent ? "Independent territory." : "Drag to navigate the world map."}`
+      : `${mapFocusRegion.country} | Stability ${mapFocusRegion.stability}% | ${mapFocusRegion.isIndependent ? "Independent territory." : formatRegionIndexes(mapFocusRegion)}`
+    : `${mapFocusCountryName} has no state. Drag to explore and select a highlighted territory.`;
 
   const revolutionaries = Math.max(0, Math.floor((player.influence + player.charisma + player.level + region.developmentIndex) / 6));
   const revolutionMissing = Math.max(0, 3 - revolutionaries);
@@ -1661,100 +1663,157 @@ export default function App() {
 
           {isParliamentTab && parliamentSubPage === "overview" && (
             <div className="parliament-page">
-              <section className="parliament-chamber-card">
-                <div className="parliament-seat-map" aria-label={`${parliamentName} seat map`}>
-                  {parliamentSeatRows.map((row, rowIndex) => (
-                    <div key={`parliament-row-${rowIndex + 1}`} className={`parliament-seat-row row-${rowIndex + 1}`}>
-                      {row.map((tone, seatIndex) => (
-                        <span key={`seat-${rowIndex + 1}-${seatIndex + 1}`} className={`parliament-seat ${tone}`} aria-hidden="true" />
-                      ))}
+              {/* Independent Region Banner */}
+              {region.isIndependent && (
+                <section className="parliament-independent-banner">
+                  <div className="pi-banner-icon">🏴</div>
+                  <div className="pi-banner-content">
+                    <h3>Independent Region</h3>
+                    <p>
+                      <strong>{region.name}</strong> is not under any state's control.
+                      Anyone can gain <strong>residency</strong> here. Residents can elect a local parliament
+                      and vote to <strong>form a new state</strong>.
+                    </p>
+                    <div className="pi-banner-details">
+                      <div className="pi-detail-item">
+                        <span className="pi-detail-label">Residency</span>
+                        <span className="pi-detail-value open">Open to all</span>
+                      </div>
+                      <div className="pi-detail-item">
+                        <span className="pi-detail-label">Borders</span>
+                        <span className="pi-detail-value open">Unrestricted</span>
+                      </div>
+                      <div className="pi-detail-item">
+                        <span className="pi-detail-label">Elections</span>
+                        <span className="pi-detail-value">24h after independence</span>
+                      </div>
+                      <div className="pi-detail-item">
+                        <span className="pi-detail-label">State Formation</span>
+                        <span className="pi-detail-value gold">By parliament vote</span>
+                      </div>
                     </div>
-                  ))}
-                  <div className="parliament-dais" aria-hidden="true">
-                    <span>LAW</span>
-                    <span>VOTE</span>
-                    <span>STATE</span>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
+
+              {!region.isIndependent && (
+                <section className="parliament-chamber-card">
+                  <div className="parliament-seat-map" aria-label={`${parliamentName} seat map`}>
+                    {parliamentSeatRows.map((row, rowIndex) => (
+                      <div key={`parliament-row-${rowIndex + 1}`} className={`parliament-seat-row row-${rowIndex + 1}`}>
+                        {row.map((tone, seatIndex) => (
+                          <span key={`seat-${rowIndex + 1}-${seatIndex + 1}`} className={`parliament-seat ${tone}`} aria-hidden="true" />
+                        ))}
+                      </div>
+                    ))}
+                    <div className="parliament-dais" aria-hidden="true">
+                      <span>LAW</span>
+                      <span>VOTE</span>
+                      <span>STATE</span>
+                    </div>
+                  </div>
+                </section>
+              )}
 
               <section className="parliament-panel">
-                <div className="parliament-panel-head">
-                  <div>
-                    <span className="parliament-kicker">Parliament: {region.country}</span>
-                    <h2>{region.name} Chamber</h2>
-                  </div>
-                  <small>{PARLIAMENT_TOTAL_SEATS} SEATS</small>
-                </div>
+                {!region.isIndependent && (
+                  <>
+                    <div className="parliament-panel-head">
+                      <div>
+                        <span className="parliament-kicker">{`Parliament: ${region.country}`}</span>
+                        <h2>{region.name} Chamber</h2>
+                      </div>
+                      <small>{PARLIAMENT_TOTAL_SEATS} SEATS</small>
+                    </div>
 
-                <div className="parliament-meta">
-                  <span>Convocation date:</span>
-                  <strong>{parliamentConvocationDate}</strong>
-                  <span>Next vote:</span>
-                  <strong>{parliamentNextVote}</strong>
-                </div>
+                    <div className="parliament-meta">
+                      <span>Convocation date:</span>
+                      <strong>{parliamentConvocationDate}</strong>
+                      <span>Next vote:</span>
+                      <strong>{parliamentNextVote}</strong>
+                    </div>
 
-                {/* Election Info Grid */}
-                <div className="parliament-election-strip">
-                  <h3>⏱ Election Cycle</h3>
-                  <div className="parliament-election-grid">
-                    <div className="parliament-election-card">
-                      <span className="ec-label">Cycle</span>
-                      <span className="ec-value">Every 5 days</span>
+                    {/* Election Info Grid */}
+                    <div className="parliament-election-strip">
+                      <h3>⏱ Election Cycle</h3>
+                      <div className="parliament-election-grid">
+                        <div className="parliament-election-card">
+                          <span className="ec-label">Cycle</span>
+                          <span className="ec-value">Every 5 days</span>
+                        </div>
+                        <div className="parliament-election-card">
+                          <span className="ec-label">Voting Window</span>
+                          <span className="ec-value green">24 hours</span>
+                        </div>
+                        <div className="parliament-election-card">
+                          <span className="ec-label">Parliament Size</span>
+                          <span className="ec-value gold">{PARLIAMENT_TOTAL_SEATS} seats</span>
+                        </div>
+                        <div className="parliament-election-card">
+                          <span className="ec-label">1% Threshold</span>
+                          <span className="ec-value">{Math.max(1, Math.ceil(PARLIAMENT_TOTAL_SEATS * 0.01))} votes min</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="parliament-election-card">
-                      <span className="ec-label">Voting Window</span>
-                      <span className="ec-value green">24 hours</span>
-                    </div>
-                    <div className="parliament-election-card">
-                      <span className="ec-label">Parliament Size</span>
-                      <span className="ec-value gold">{PARLIAMENT_TOTAL_SEATS} seats</span>
-                    </div>
-                    <div className="parliament-election-card">
-                      <span className="ec-label">1% Threshold</span>
-                      <span className="ec-value">{Math.max(1, Math.ceil(PARLIAMENT_TOTAL_SEATS * 0.01))} votes min</span>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 {/* State Info */}
                 <div className="parliament-state-strip">
                   <div className="parliament-state-row">
                     <span className="ps-label">Government</span>
-                    <span className="ps-value gold">{region.governmentType ?? "Parliamentary Republic"}</span>
+                    <span className={`ps-value ${region.isIndependent ? "" : "gold"}`}>{region.isIndependent ? "No Government (Independent)" : (region.governmentType ?? "Parliamentary Republic")}</span>
                   </div>
+                  {!region.isIndependent && (
+                    <div className="parliament-state-row">
+                      <span className="ps-label">Majority Target</span>
+                      <span className="ps-value">{Math.floor(PARLIAMENT_TOTAL_SEATS / 2) + 1} seats (50%+)</span>
+                    </div>
+                  )}
                   <div className="parliament-state-row">
-                    <span className="ps-label">Majority Target</span>
-                    <span className="ps-value">{Math.floor(PARLIAMENT_TOTAL_SEATS / 2) + 1} seats (50%+)</span>
-                  </div>
-                  <div className="parliament-state-row">
-                    <span className="ps-label">State Stability</span>
+                    <span className="ps-label">{region.isIndependent ? "Region Stability" : "State Stability"}</span>
                     <span className="ps-value">{region.stability}%</span>
                   </div>
+                  {region.isIndependent && (
+                    <>
+                      <div className="parliament-state-row">
+                        <span className="ps-label">Residency</span>
+                        <span className="ps-value" style={{ color: "#7dd956" }}>Open — anyone can request</span>
+                      </div>
+                      <div className="parliament-state-row">
+                        <span className="ps-label">Work Permits</span>
+                        <span className="ps-value" style={{ color: "#7dd956" }}>No restrictions</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Majority Strip */}
-                <div className="parliament-majority-strip">
-                  <div className="parliament-majority-copy">
-                    <strong>{parliamentLeadBloc.name}</strong>
-                    <span>
-                      {parliamentLeadBloc.seats}/{PARLIAMENT_TOTAL_SEATS} seats · {parliamentLeadBloc.share.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="parliament-majority-track" aria-hidden="true">
-                    <span style={{ width: `${parliamentLeadBloc.share}%` }} />
-                  </div>
-                </div>
+                {!region.isIndependent && (
+                  <>
+                    <div className="parliament-majority-strip">
+                      <div className="parliament-majority-copy">
+                        <strong>{parliamentLeadBloc.name}</strong>
+                        <span>
+                          {parliamentLeadBloc.seats}/{PARLIAMENT_TOTAL_SEATS} seats · {parliamentLeadBloc.share.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="parliament-majority-track" aria-hidden="true">
+                        <span style={{ width: `${parliamentLeadBloc.share}%` }} />
+                      </div>
+                    </div>
 
-                {/* Party List */}
-                <div className="parliament-party-list">
-                  {parliamentBlocs.map((bloc) => (
-                    <ParliamentBlocRow key={bloc.id} bloc={bloc} />
-                  ))}
-                </div>
+                    {/* Party List */}
+                    <div className="parliament-party-list">
+                      {parliamentBlocs.map((bloc) => (
+                        <ParliamentBlocRow key={bloc.id} bloc={bloc} />
+                      ))}
+                    </div>
+                  </>
+                )}
 
                 {/* State Officials */}
-                <div className="parliament-officials-strip">
+                {!region.isIndependent && (<div className="parliament-officials-strip">
                   <h3>👔 State Officials</h3>
                   <div className="parliament-official-card">
                     <div className="parliament-official-icon leader">👑</div>
@@ -1788,7 +1847,7 @@ export default function App() {
                     </div>
                     <span className="parliament-official-name">—</span>
                   </div>
-                </div>
+                </div>)}
 
                 {/* Voting Rules */}
                 <div className="parliament-rules-strip">
@@ -1820,9 +1879,19 @@ export default function App() {
                 <div className="parliament-requirements">
                   <span className="req-icon">ℹ️</span>
                   <p className="req-text">
-                    To vote or run for parliament, players must be at least <strong>Level 50</strong> and
-                    have had <strong>residency</strong> in the state for at least <strong>24 hours</strong>.
-                    Parties need at least <strong>1%</strong> of total votes to gain seats.
+                    {region.isIndependent ? (
+                      <>
+                        This is an <strong>independent region</strong>. Anyone can request <strong>residency</strong> here.
+                        Once residents form political parties, the local parliament can vote to <strong>form a new state</strong>.
+                        Elections begin <strong>24 hours</strong> after independence is gained.
+                      </>
+                    ) : (
+                      <>
+                        To vote or run for parliament, players must be at least <strong>Level 50</strong> and
+                        have had <strong>residency</strong> in the state for at least <strong>24 hours</strong>.
+                        Parties need at least <strong>1%</strong> of total votes to gain seats.
+                      </>
+                    )}
                   </p>
                 </div>
               </section>
@@ -1832,41 +1901,50 @@ export default function App() {
                 className="parliament-enact-btn"
                 onClick={() => setParliamentSubPage("enact_law")}
               >
-                ⚖ {t.ui.enactLaw}
+                {region.isIndependent ? "🏛 Form a New State" : `⚖ ${t.ui.enactLaw}`}
               </button>
             </div>
           )}
 
           {isParliamentTab && parliamentSubPage === "enact_law" && (() => {
-            const pendingBills = bills.filter((b) => b.status === "pending");
-            const acceptedBills = bills.filter((b) => b.status === "accepted");
-            const rejectedBills = bills.filter((b) => b.status === "rejected");
+            const localBills = bills.filter((b) => !b.targetRegionId || b.targetRegionId === region.id);
+            const pendingBills = localBills.filter((b) => b.status === "pending");
+            const acceptedBills = localBills.filter((b) => b.status === "accepted");
+            const rejectedBills = localBills.filter((b) => b.status === "rejected");
+            const availableLaws = region.isIndependent ? (["form_state"] as LawType[]) : ALL_LAW_TYPES.filter((lt) => lt !== "form_state");
             const filteredLawTypes = lawCategoryFilter === "all"
-              ? ALL_LAW_TYPES
-              : ALL_LAW_TYPES.filter((lt) => LAW_DEFINITIONS[lt].category === lawCategoryFilter);
+              ? availableLaws
+              : availableLaws.filter((lt) => LAW_DEFINITIONS[lt].category === lawCategoryFilter);
             const displayBills = billListFilter === "pending" ? pendingBills : billListFilter === "accepted" ? acceptedBills : rejectedBills;
 
             return (
               <div className="parliament-page enact-law-page">
                 {/* Propose a new law */}
-                <section className="law-propose-panel">
-                  <div className="law-propose-header">
-                    <h2>{t.ui.proposeBill}</h2>
-                    <small>-100$ -10 Inf</small>
-                  </div>
+                {(!region.isIndependent && player.level < 10) ? (
+                  <section className="law-propose-panel" style={{ padding: "16px", textAlign: "center", color: "#9aa3b0" }}>
+                    <p>You must be at least <strong>Level 10</strong>, and have 100$ / 10 Influence to propose state laws.</p>
+                  </section>
+                ) : (
+                  <section className="law-propose-panel">
+                    <div className="law-propose-header">
+                      <h2>{t.ui.proposeBill}</h2>
+                      {!region.isIndependent && <small>-100$ -10 Inf</small>}
+                    </div>
 
-                  <div className="law-category-tabs">
-                    {(["all", "economic", "political", "government"] as const).map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        className={`law-cat-tab${lawCategoryFilter === cat ? " active" : ""}`}
-                        onClick={() => setLawCategoryFilter(cat)}
-                      >
-                        {cat === "all" ? "All" : (t.ui as any)[cat] ?? cat}
-                      </button>
-                    ))}
-                  </div>
+                  {!region.isIndependent && (
+                    <div className="law-category-tabs">
+                      {(["all", "economic", "political", "government"] as const).map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`law-cat-tab${lawCategoryFilter === cat ? " active" : ""}`}
+                          onClick={() => setLawCategoryFilter(cat)}
+                        >
+                          {cat === "all" ? "All" : (t.ui as any)[cat] ?? cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="law-type-list">
                     {filteredLawTypes.map((lt) => {
@@ -1897,14 +1975,27 @@ export default function App() {
                       type="button"
                       className="law-submit-btn"
                       onClick={() => {
+                        if (selectedLawType !== "form_state") {
+                          if (player.money < 100 || player.influence < 10) {
+                            alert("Need 100 money and 10 influence to propose a bill.");
+                            return;
+                          }
+                          if (player.level < 10) {
+                            alert("Must be at least level 10 to propose bills.");
+                            return;
+                          }
+                        }
+                        
                         proposeBill(selectedLawType);
                         setSelectedLawType(null);
+                        alert(`Bill "${(t.laws as any)?.[selectedLawType] ?? selectedLawType}" successfully proposed! Check the Pending Bills tab to cast your vote.`);
                       }}
                     >
                       {t.ui.proposeBill}: {(t.laws as any)?.[selectedLawType] ?? selectedLawType}
                     </button>
                   )}
                 </section>
+                )}
 
                 {/* Bill filter tabs */}
                 <section className="law-bills-panel">

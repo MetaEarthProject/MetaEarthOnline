@@ -23,6 +23,7 @@ export type Region = {
   developmentIndex: number;
   neighbors: string[];
   governmentType?: StateType;
+  isIndependent?: boolean;
 };
 
 export type Party = {
@@ -85,7 +86,8 @@ export type LawType =
   | "independence_declaration"
   | "region_consolidation"
   | "close_open_borders"
-  | "working_without_residency";
+  | "working_without_residency"
+  | "form_state";
 
 export type Bill = {
   id: string;

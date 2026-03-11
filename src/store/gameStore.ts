@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import world from "@svg-maps/world";
 import type { FactoryId, Party, Player, Region, Role, UpgradeablePerk, WorkExperience, War, WarType, ResourceStorage, StateType, Bill, LawType, LawCategory } from "../types";
 
 export type Language = 'en' | 'ko';
@@ -59,7 +60,8 @@ export const translations: Record<Language, any> = {
       independence_declaration: "Independence declaration",
       region_consolidation: "Region consolidation",
       close_open_borders: "Close/Open borders",
-      working_without_residency: "Working without residency"
+      working_without_residency: "Working without residency",
+      form_state: "Form a new state"
     },
     factories: {
       gold: "gold mine",
@@ -128,7 +130,8 @@ export const translations: Record<Language, any> = {
       independence_declaration: "독립 선언",
       region_consolidation: "지역 통합",
       close_open_borders: "국경 개폐",
-      working_without_residency: "비거주 노동 허가"
+      working_without_residency: "비거주 노동 허가",
+      form_state: "신규 국가 수립"
     },
     factories: {
       gold: "골드 광산",
@@ -384,8 +387,54 @@ const initialRegions: Region[] = [
     developmentIndex: 2,
     neighbors: ["us-east"],
     governmentType: "Dictatorship"
+  },
+  {
+    id: "central-africa",
+    name: "Central Rift Zone",
+    country: "Unorganized Territory",
+    city: "Kinshasa",
+    lat: -4.4419,
+    lng: 15.2663,
+    owner: "none",
+    stability: 30,
+    economy: 28,
+    defense: 20,
+    population: 8,
+    healthIndex: 2,
+    militaryIndex: 2,
+    educationIndex: 2,
+    developmentIndex: 1,
+    neighbors: ["mena", "eu-west"],
+    isIndependent: true
   }
 ];
+
+const mappedCountryNames = new Set(initialRegions.map(r => r.country.toLowerCase().replace(/[^a-z0-9]/g, "")));
+
+world.locations.forEach(loc => {
+  const normName = loc.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!mappedCountryNames.has(normName)) {
+    initialRegions.push({
+      id: loc.id,
+      name: loc.name,
+      country: loc.name,
+      city: "Capital",
+      lat: 0,
+      lng: 0,
+      owner: "none",
+      stability: 30,
+      economy: 25,
+      defense: 20,
+      population: 5,
+      healthIndex: 2,
+      militaryIndex: 2,
+      educationIndex: 2,
+      developmentIndex: 1,
+      neighbors: [],
+      isIndependent: true
+    });
+  }
+});
 
 const initialParties: Party[] = [
   { id: "civic", name: "Civic Front", popularity: 44, members: 1200 },
@@ -653,7 +702,8 @@ const LAW_DEFINITIONS: Record<LawType, { category: LawCategory; description: (re
   independence_declaration: { category: "government", description: (r) => `Grant full independence to a region of ${r.country}.` },
   region_consolidation: { category: "government", description: (r) => `Transfer a region to another state from ${r.country}.` },
   close_open_borders: { category: "government", description: (r) => `Toggle border control policy for ${r.country}.` },
-  working_without_residency: { category: "government", description: (r) => `Allow or disallow non-residents to work in ${r.country}.` }
+  working_without_residency: { category: "government", description: (r) => `Allow or disallow non-residents to work in ${r.country}.` },
+  form_state: { category: "government", description: (r) => `Organize ${r.name} into a formal state with its own government, parliament, and leadership. Requires residency.` }
 };
 
 const ALL_LAW_TYPES: LawType[] = Object.keys(LAW_DEFINITIONS) as LawType[];
@@ -684,6 +734,7 @@ function generateInitialBills(day: number, region: Region, parties: Party[]): Bi
       status: "pending" as const,
       playerVoted: false,
       effectValue: law.value,
+      targetRegionId: region.id,
     };
   });
 }
@@ -994,14 +1045,16 @@ export const useGameStore = create<GameState>((set) => ({
     set((state) => {
       const player = { ...state.player };
       const region = state.regions.find((r) => r.id === player.locationId)!;
-      if (player.money < 100 || player.influence < 10) {
-        return { log: withLog(state.log, state.day, "Need 100 money and 10 influence to propose a bill.") };
+      if (lawType !== "form_state") {
+        if (player.money < 100 || player.influence < 10) {
+          return { log: withLog(state.log, state.day, "Need 100 money and 10 influence to propose a bill.") };
+        }
+        if (player.level < 10) {
+          return { log: withLog(state.log, state.day, "Must be at least level 10 to propose bills.") };
+        }
+        player.money -= 100;
+        player.influence = Math.max(0, player.influence - 10);
       }
-      if (player.level < 10) {
-        return { log: withLog(state.log, state.day, "Must be at least level 10 to propose bills.") };
-      }
-      player.money -= 100;
-      player.influence = Math.max(0, player.influence - 10);
       const def = LAW_DEFINITIONS[lawType];
       const activeParty = state.parties.find((p) => p.id === player.partyId);
       const effectValue = lawType === "change_tax" ? rand(5, 25) : lawType === "market_taxes" ? rand(2, 12) : undefined;
@@ -1012,21 +1065,22 @@ export const useGameStore = create<GameState>((set) => ({
         category: def.category,
         title: lawType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
         description: def.description(region, effectValue),
-        proposedBy: activeParty?.name ?? `${region.city} Commander`,
+        proposedBy: activeParty?.name ?? `${region.name} Initializer`,
         proposedDay: state.day,
         expiresDay: state.day + 6,
-        votesFor: 1,
+        votesFor: 0,
         votesAgainst: 0,
         totalEligibleVoters: totalVoters,
         status: "pending",
-        playerVoted: true,
+        playerVoted: false,
         effectValue,
+        targetRegionId: region.id,
       };
       grantXp(player, 15);
       return {
         player,
         bills: [...state.bills, newBill],
-        log: withLog(state.log, state.day, `Proposed bill: ${newBill.title}. Voting open for 6 days.`)
+        log: withLog(state.log, state.day, `Proposed bill: ${newBill.title}. Cast your vote to pass it.`)
       };
     }),
 
@@ -1059,25 +1113,41 @@ export const useGameStore = create<GameState>((set) => ({
       // Check immediate passage (50%+1 in Presidential Republic)
       const totalCast = bill.votesFor + bill.votesAgainst;
       const threshold = (bill.lawType === "proclamation_dictatorship" || bill.lawType === "dominant_party_system") ? 0.8 : 0.5;
+      
+      let passLog = `Voted ${vote.toUpperCase()} on "${bill.title}". For: ${bill.votesFor}, Against: ${bill.votesAgainst}.`;
+      
       if (bill.votesFor / Math.max(1, totalCast) > threshold) {
         bill.status = "accepted";
-        // Apply law effects
-        const region = state.regions.find((r) => r.id === player.locationId)!;
+        passLog = `Bill "${bill.title}" PASSED instantly with ${bill.votesFor} PRO votes.`;
+        // Apply law effects locally
         const regions = state.regions.map((r) => ({ ...r }));
+        const locRegion = regions.find((r) => r.id === player.locationId);
         const laws = { ...state.laws };
+        
         if (bill.lawType === "change_tax" && bill.effectValue) {
           laws.taxRate = bill.effectValue;
         } else if (bill.lawType === "market_taxes" && bill.effectValue) {
           laws.tradeTariff = bill.effectValue;
-        } else if (bill.lawType === "new_building") {
-          const locRegion = regions.find((r) => r.id === player.locationId);
-          if (locRegion) locRegion.developmentIndex = clamp(locRegion.developmentIndex + 1, 1, 10);
-        } else if (bill.lawType === "resource_exploration") {
-          const locRegion = regions.find((r) => r.id === player.locationId);
-          if (locRegion) locRegion.economy = clamp(locRegion.economy + 3, 0, 100);
+        } else if (bill.lawType === "new_building" && locRegion) {
+          locRegion.developmentIndex = clamp(locRegion.developmentIndex + 1, 1, 10);
+        } else if (bill.lawType === "resource_exploration" && locRegion) {
+          locRegion.economy = clamp(locRegion.economy + 3, 0, 100);
+        } else if (bill.lawType === "form_state" && locRegion && locRegion.isIndependent) {
+          locRegion.isIndependent = false;
+          locRegion.governmentType = "Parliamentary Republic";
+          locRegion.country = `Republic of ${locRegion.name}`;
+          locRegion.owner = player.partyId ?? "none";
+          locRegion.stability = clamp(locRegion.stability + 10, 0, 100);
+          locRegion.economy = clamp(locRegion.economy + 5, 0, 100);
+        } else if (bill.lawType === "independence_declaration" && locRegion && !locRegion.isIndependent) {
+          locRegion.isIndependent = true;
+          locRegion.governmentType = undefined;
+          locRegion.owner = "none";
+          locRegion.stability = clamp(locRegion.stability - 15, 0, 100);
         }
+        
         grantXp(player, 20);
-        return { player, bills, laws, regions, log: withLog(state.log, state.day, `Bill "${bill.title}" PASSED with ${bill.votesFor} PRO votes.`) };
+        return { player, bills, laws, regions, log: withLog(state.log, state.day, passLog) };
       }
       if (bill.votesAgainst / Math.max(1, totalCast) > (1 - threshold)) {
         bill.status = "rejected";

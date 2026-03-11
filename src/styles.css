@@ -2817,9 +2817,9 @@ body {
   display: block;
   width: calc(100% - 16px);
   margin: 8px;
-  border: 1px solid #5d6b2b;
-  background: linear-gradient(180deg, #5b7222 0%, #3f5417 100%);
-  color: #f7fbdc;
+  border: 1px solid #6b5c24;
+  background: linear-gradient(180deg, #4a3f1a 0%, #2e2710 100%);
+  color: #f3e5ba;
   padding: 10px 12px;
   font-size: 0.82rem;
   font-weight: 800;
@@ -2828,7 +2828,7 @@ body {
 }
 
 .law-submit-btn:hover {
-  background: linear-gradient(180deg, #6d8a2a 0%, #4d661e 100%);
+  background: linear-gradient(180deg, #5c4e22 0%, #3c3216 100%);
 }
 
 /* ── Bills Panel ── */
