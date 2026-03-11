@@ -747,7 +747,7 @@ function BattleWindow({ war, onClose }: { war: WarConflict; onClose: () => void 
 }
 
 function TrainingWindow({ onClose }: { onClose: () => void }) {
-  const { player, action, language, regions } = useGameStore();
+  const { player, action, language, regions, winPlayGame } = useGameStore();
   const t = translations[language];
   const region = regions.find(r => r.id === player.locationId)!;
   const [energySpend, setEnergySpend] = useState(Math.floor(Math.min(player.energy, 300) / 10) * 10 || 10);
@@ -866,6 +866,7 @@ export default function App() {
     bills,
     proposeBill,
     voteOnBill,
+    winPlayGame
   } = useGameStore();
 
   const rest = () => action("rest");
@@ -876,7 +877,7 @@ export default function App() {
   const TAB_LABELS = getTabLabels(t);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [isHomeMenuOpen, setIsHomeMenuOpen] = useState(false);
-  const [profileCareerTrack, setProfileCareerTrack] = useState("government");
+  const [profileCareerTrack, setProfileCareerTrack] = useState("Citizen track");
   const [workSearch, setWorkSearch] = useState("");
   const [isAutoMode, setIsAutoMode] = useState(false);
   const [refillEnergyCost, setRefillEnergyCost] = useState<number>(FULL_FACTORY_ENERGY_COST);
@@ -888,6 +889,7 @@ export default function App() {
   const [billListFilter, setBillListFilter] = useState<"pending" | "accepted" | "rejected">("pending");
   const [selectedWar, setSelectedWar] = useState<WarConflict | null>(null);
   const [isTrainingOpen, setIsTrainingOpen] = useState(false);
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
   const workSearchRef = useRef<HTMLInputElement>(null);
   const deferredWorkSearch = useDeferredValue(workSearch);
 
@@ -2285,31 +2287,35 @@ export default function App() {
                   <div className="me-profile-identity" style={{ flex: 1 }}>
                     <h2>{profileName}</h2>
                     <p style={{ color: "#8b949e", fontSize: "0.85rem", margin: "4px 0" }}>{player.role} of {region.city}</p>
-                    <div className="me-profile-level-row">
-                      <span className="me-profile-level">Level {player.level}</span>
-                      <div className="me-profile-level-track" aria-hidden="true">
+                    <div className="me-profile-level-row" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span className="me-profile-rank" style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#d4af37', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                        RANK #{formatNumber(profileRankScore)}
+                      </span>
+                      <span className="me-profile-level">{t.ui.level} {player.level}</span>
+                      <div className="me-profile-level-track" aria-hidden="true" style={{ flex: 1, height: '6px' }}>
                         <span style={{ width: `${xpPercent}%` }} />
                       </div>
                     </div>
                   </div>
                 </div>
 
+                <div className="me-profile-money-row" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.9rem', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '1px' }}>Cash Balance</span>
+                  <strong style={{ fontSize: '1.5rem', color: '#22c55e' }}>${formatNumber(player.money)}</strong>
+                </div>
+
                 <div className="me-profile-stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '20px' }}>
                   <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Wealth</span>
-                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px' }}>${formatNumber(profileWealth)}</strong>
-                  </div>
-                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Gold Hold</span>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>{t.tabs.storage} {t.resources.gold}</span>
                     <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px', color: '#ffcc00' }}>{formatNumber(resources.gold ?? 0)}G</strong>
                   </div>
                   <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Rank Score</span>
-                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px' }}>{formatNumber(profileRankScore)}</strong>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Wealth Index</span>
+                    <strong style={{ display: 'block', fontSize: '1.2rem', marginTop: '4px' }}>${formatNumber(profileWealth)}</strong>
                   </div>
-                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Residency</span>
-                    <strong style={{ display: 'inline-block', fontSize: '1rem', marginTop: '7px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }} title={region.name}>{region.name}</strong>
+                  <div className="me-profile-stat-box" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '6px', gridColumn: 'span 2' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>{t.ui.residenceZone}</span>
+                    <strong style={{ display: 'block', fontSize: '1.1rem', marginTop: '4px' }}>{region.city}, {region.country}</strong>
                   </div>
                 </div>
 
@@ -2334,8 +2340,19 @@ export default function App() {
                   </div>
                 </div>
 
-                <button type="button" className="me-profile-cta" onClick={() => action("play_game")} disabled={player.dailyGamePlays >= 5} style={{ opacity: player.dailyGamePlays >= 5 ? 0.5 : 1 }}>
-                  Play Game ({player.dailyGamePlays}/5)
+                <button 
+                  type="button" 
+                  className="me-profile-cta" 
+                  onClick={() => {
+                    if (player.energy >= 10 && player.time >= 10) {
+                      action("play_game");
+                      setIsQuizOpen(true);
+                    }
+                  }} 
+                  disabled={player.dailyGamePlays >= 5} 
+                  style={{ opacity: player.dailyGamePlays >= 5 ? 0.5 : 1 }}
+                >
+                  {t.ui.solveQuiz || "Solve Daily Quiz"} ({player.dailyGamePlays || 0}/5)
                 </button>
               </section>
 
@@ -2447,13 +2464,247 @@ export default function App() {
             </button>
           ))}
         </nav>
+        {isQuizOpen && (
+          <PlayGameQuiz 
+            onClose={() => setIsQuizOpen(false)} 
+            onWin={(xp, gold) => winPlayGame(xp, gold)} 
+            action={(kind) => action(kind)}
+          />
+        )}
       </main>
     </div >
   );
 }
 
+function PlayGameQuiz({ onClose, onWin, action }: { onClose: () => void; onWin: (xp: number, gold: number) => void; action: (kind: "play_game") => void }) {
+  const { language, player } = useGameStore();
+  const t = translations[language];
+  const quizData = t.quiz;
+  const categories = Object.keys(quizData);
 
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [question, setQuestion] = useState<any>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isWrong, setIsWrong] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  const XP_REWARD = 250;
+  const GOLD_REWARD = 10;
+
+  const handleSelectCategory = (cat: string) => {
+    setSelectedCategory(cat);
+    const categoryQuestions = quizData[cat];
+    setQuestion(categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)]);
+  };
+
+  const handleAnswer = (opt: string) => {
+    setSelectedOption(opt);
+    if (opt === question.a) {
+      setIsWrong(false);
+      setIsSuccess(true);
+      onWin(XP_REWARD, GOLD_REWARD);
+    } else {
+      setIsWrong(true);
+    }
+  };
+
+  const handleNext = (resetSubject: boolean = false) => {
+    if (player.dailyGamePlays >= 5) {
+      onClose();
+      return;
+    }
+    if (player.energy < 10 || player.time < 10) {
+      onClose();
+      return;
+    }
+    
+    // Perform cost action
+    action("play_game");
+
+    // Reset states
+    setSelectedOption(null);
+    setIsWrong(false);
+    setIsSuccess(false);
+
+    if (resetSubject) {
+      setSelectedCategory(null);
+      setQuestion(null);
+    } else if (selectedCategory) {
+      const categoryQuestions = quizData[selectedCategory];
+      setQuestion(categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)]);
+    }
+  };
+
+  return (
+    <div className="me-quiz-overlay" style={{
+      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+      background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 10000, backdropFilter: 'blur(10px)'
+    }}>
+      <div className="me-quiz-card" style={{
+        background: '#161b22', border: '1px solid #d4af37', borderRadius: '12px',
+        padding: '30px', maxWidth: '450px', width: '90%', textAlign: 'center',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.8)', position: 'relative', overflow: 'hidden'
+      }}>
+        {isSuccess && (
+          <div className="me-quiz-confetti" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '5px', background: 'linear-gradient(90deg, #d4af37, #fca311, #d4af37)', animation: 'quiz-beam 2s infinite' }} />
+        )}
+        
+        <h2 style={{ color: '#d4af37', marginBottom: '10px', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {t.ui.quizTitle || "Meta Earth Daily Quest"}
+        </h2>
+        
+        {!selectedCategory ? (
+          <div>
+            <p style={{ color: '#e6edf3', marginBottom: '20px' }}>{t.ui.selectCategory || "Select Subject"}</p>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => handleSelectCategory(cat)}
+                  style={{
+                    background: 'rgba(212, 175, 55, 0.1)', border: '1px solid #d4af37',
+                    padding: '12px', borderRadius: '8px', color: '#d4af37', cursor: 'pointer', fontWeight: 'bold'
+                  }}
+                >
+                  {t.quiz_categories ? t.quiz_categories[cat] : cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '5px 12px', borderRadius: '20px', display: 'inline-block', fontSize: '0.8rem', color: '#d4af37', marginBottom: '20px' }}>
+              {t.quiz_categories ? t.quiz_categories[selectedCategory] : selectedCategory}
+            </div>
+
+            <p style={{ color: '#e6edf3', fontSize: '1.1rem', lineHeight: '1.5', marginBottom: '30px', fontWeight: '500' }}>
+              {question.q}
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '30px' }}>
+              {question.options.map((opt: string) => (
+                <button
+                  key={opt}
+                  disabled={isSuccess}
+                  onClick={() => handleAnswer(opt)}
+                  style={{
+                    background: (selectedOption === opt && isWrong) ? 'rgba(220,38,38,0.2)' : (isSuccess && opt === question.a) ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${(selectedOption === opt && isWrong) ? '#dc2626' : (isSuccess && opt === question.a) ? '#22c55e' : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '8px', padding: '16px', color: '#e6edf3', cursor: 'pointer', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)', textAlign: 'left', fontSize: '1rem'
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {isWrong && !isSuccess && (
+              <p style={{ color: '#dc2626', fontSize: '0.9rem', marginBottom: '20px', animation: 'shake 0.5s' }}>
+                {t.ui.quizWrong || "Incorrect! Try again!"}
+              </p>
+            )}
+
+            {isSuccess && (
+              <div style={{ 
+                marginTop: '20px', 
+                padding: '20px', 
+                background: 'rgba(34, 197, 94, 0.1)', 
+                borderRadius: '10px', 
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                animation: 'fadeInUp 0.5s'
+              }}>
+                <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px' }}>
+                  {t.ui.quizCorrect || "VICTORY!"}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '15px' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>XP Gained</div>
+                    <div style={{ fontSize: '1.4rem', color: '#38bdf8', fontWeight: 'bold' }}>+{XP_REWARD}</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#8b949e', textTransform: 'uppercase' }}>Gold Gained</div>
+                    <div style={{ fontSize: '1.4rem', color: '#fbbf24', fontWeight: 'bold' }}>+{GOLD_REWARD}G</div>
+                  </div>
+                </div>
+                
+                <div style={{ 
+                  marginBottom: '20px', fontSize: '0.85rem', color: '#8b949e',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px'
+                }}>
+                  {t.ui.pendingBills ? `Remaining: ${5 - player.dailyGamePlays}/5` : `Daily Quiz Left: ${5 - player.dailyGamePlays}`}
+                </div>
+                
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  <button
+                    onClick={() => handleNext(false)}
+                    disabled={player.dailyGamePlays >= 5 || player.energy < 10 || player.time < 10}
+                    style={{
+                      background: '#d4af37', border: 'none', color: '#161b22', fontWeight: 'bold',
+                      padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem',
+                      opacity: (player.dailyGamePlays >= 5 || player.energy < 10 || player.time < 10) ? 0.5 : 1
+                    }}
+                  >
+                    {t.ui.nextQuiz || "Continue"} {selectedCategory ? ` (${t.quiz_categories[selectedCategory]})` : ""}
+                  </button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <button
+                      onClick={() => handleNext(true)}
+                      disabled={player.dailyGamePlays >= 5 || player.energy < 10 || player.time < 10}
+                      style={{
+                        background: 'rgba(212, 175, 55, 0.1)', border: '1px solid #d4af37',
+                        color: '#d4af37', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem'
+                      }}
+                    >
+                      {t.ui.changeSubject || "Change Subject"}
+                    </button>
+                    <button
+                      onClick={onClose}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)',
+                        color: '#8b949e', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem'
+                      }}
+                    >
+                      {t.ui.back || "Exit"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {(!isSuccess || (!selectedCategory && !isSuccess)) && (
+          <button 
+            onClick={onClose} 
+            style={{ 
+              background: 'none', border: 'none', color: '#8b949e', 
+              cursor: 'pointer', fontSize: '0.85rem', marginTop: '10px',
+              textDecoration: 'underline'
+            }}
+          >
+            {t.ui.quizAbandon || "Abandon"}
+          </button>
+        )}
+      </div>
+      <style>{`
+        @keyframes quiz-beam {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 
 

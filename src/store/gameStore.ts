@@ -40,7 +40,40 @@ export const translations: Record<Language, any> = {
       selectLawType: "Select law type",
       government: "Government",
       back: "Back",
-      menu: "Menu"
+      menu: "Menu",
+      solveQuiz: "Solve Daily Quiz",
+      quizTitle: "Meta Earth Daily Quest",
+      selectCategory: "Select Subject",
+      quizWrong: "Incorrect! We've highlighted the error. Try again!",
+      quizCorrect: "VICTORY! Gold and XP added.",
+      quizAbandon: "Abandon Quest",
+      nextQuiz: "Next Question",
+      changeSubject: "Change Subject",
+      limitReached: "Daily Limit Reached (5/5)"
+    },
+    quiz_categories: { History: "World History", Economy: "Global Economy", Politics: "International Politics" },
+    quiz: {
+      History: [
+        { q: "In which year did World War II end?", a: "1945", options: ["1939", "1942", "1945", "1948"] },
+        { q: "Who was the first President of the United States?", a: "George Washington", options: ["Thomas Jefferson", "Abraham Lincoln", "George Washington", "John Adams"] },
+        { q: "The Magna Carta was signed in which century?", a: "13th", options: ["11th", "12th", "13th", "14th"] },
+        { q: "Who discovered America in 1492?", a: "Christopher Columbus", options: ["Vasco da Gama", "Christopher Columbus", "Ferdinand Magellan", "Marco Polo"] },
+        { q: "The French Revolution began in which year?", a: "1789", options: ["1776", "1789", "1804", "1812"] }
+      ],
+      Economy: [
+        { q: "What does GDP stand for?", a: "Gross Domestic Product", options: ["Global Domestic Price", "Gross Domestic Product", "General Deposit Policy", "Government Debt Percentage"] },
+        { q: "Which organization regulates global trade?", a: "WTO", options: ["IMF", "WTO", "World Bank", "NATO"] },
+        { q: "What is inflation?", a: "A general increase in prices", options: ["A decrease in unemployment", "A general increase in prices", "A rise in currency value", "A budget surplus"] },
+        { q: "Who is known as the 'Father of Economics'?", a: "Adam Smith", options: ["John Maynard Keynes", "Karl Marx", "Adam Smith", "Milton Friedman"] },
+        { q: "Which metal has historically been the standard for money?", a: "Gold", options: ["Silver", "Gold", "Copper", "Iron"] }
+      ],
+      Politics: [
+        { q: "A 'Republic' is a form of government where power is held by...", a: "The people and their representatives", options: ["A monarch", "The military", "The people and their representatives", "A single dictator"] },
+        { q: "What is the primary document of US law?", a: "Constitution", options: ["Declaration of Independence", "Constitution", "Bill of Rights", "Common Law"] },
+        { q: "The term 'Veto' comes from which language?", a: "Latin", options: ["Greek", "Latin", "French", "German"] },
+        { q: "A system with only one political party is called...", a: "One-party state", options: ["Democracy", "Monarchy", "One-party state", "Federalism"] },
+        { q: "How many branches of government are in a typical democracy?", a: "3", options: ["1", "2", "3", "4"] }
+      ]
     },
     laws: {
       change_tax: "Change tax rate",
@@ -110,7 +143,40 @@ export const translations: Record<Language, any> = {
       selectLawType: "법률 유형 선택",
       government: "정부",
       back: "뒤로",
-      menu: "메뉴"
+      menu: "메뉴",
+      solveQuiz: "일일 퀴즈 풀기",
+      quizTitle: "메타어스 일일 퀘스트",
+      selectCategory: "과목 선택",
+      quizWrong: "틀렸습니다! 오류를 표시했습니다. 다시 시도하세요!",
+      quizCorrect: "성공! 골드와 경험치가 지급되었습니다.",
+      quizAbandon: "퀴즈 그만하기",
+      nextQuiz: "다음 문제 풀기",
+      changeSubject: "과목 변경",
+      limitReached: "일일 한도 초과 (5/5)"
+    },
+    quiz_categories: { History: "세계사", Economy: "세계 경제", Politics: "국제 정치" },
+    quiz: {
+      History: [
+        { q: "제2차 세계 대전은 몇 년도에 끝났나요?", a: "1945", options: ["1939", "1942", "1945", "1948"] },
+        { q: "미국의 초대 대통령은 누구인가요?", a: "조지 워싱턴", options: ["토머스 제퍼슨", "에이브러햄 링컨", "조지 워싱턴", "온 애덤스"] },
+        { q: "마그나 카르타(대헌장)는 몇 세기에 서명되었나요?", a: "13세기", options: ["11세기", "12세기", "13세기", "14세기"] },
+        { q: "1492년 아메리카 대륙을 발견한 사람은 누구인가요?", a: "크리스토퍼 콜럼버스", options: ["바스쿠 다 가마", "크리스토퍼 콜럼버스", "페르디난드 마젤란", "마르코 폴로"] },
+        { q: "프랑스 혁명은 몇 년도에 시작되었나요?", a: "1789", options: ["1776", "1789", "1804", "1812"] }
+      ],
+      Economy: [
+        { q: "GDP는 무엇의 약자인가요?", a: "국내 총생산", options: ["국제 국내 가격", "국내 총생산", "일반 예금 정책", "정부 부채 비율"] },
+        { q: "어느 기구가 세계 무역을 규제하나요?", a: "WTO", options: ["IMF", "WTO", "세계은행", "NATO"] },
+        { q: "인플레이션이란 무엇인가요?", a: "물가의 전반적인 상승", options: ["실업의 감소", "물가의 전반적인 상승", "통화 가치의 상승", "예산 흑자"] },
+        { q: "경제학의 아버지로 알려진 사람은 누구인가요?", a: "애덤 스미스", options: ["존 메이너드 케인즈", "카를 마르크스", "애덤 스미스", "밀턴 프리드먼"] },
+        { q: "역사적으로 화폐의 기준이 되었던 금속은 무엇인가요?", a: "금", options: ["은", "금", "구리", "철"] }
+      ],
+      Politics: [
+        { q: "공화국이란 권력이 누구에 의해 행사되는 정부 형태인가요?", a: "국민과 그 대표자들", options: ["군주", "군대", "국민과 그 대표자들", "단독 독재자"] },
+        { q: "미국 법의 주요 문서는 무엇인가요?", a: "헌법", options: ["독립 선언서", "헌법", "권리 장전", "관습법"] },
+        { q: "거부권(Veto)이라는 용어는 어느 언어에서 유래했나요?", a: "라틴어", options: ["그리스어", "라틴어", "프랑스어", "독어"] },
+        { q: "단 하나의 정당만 있는 체제를 무엇이라고 하나요?", a: "일당제 국가", options: ["민주주의", "군주제", "일당제 국가", "연방제"] },
+        { q: "전형적인 민주주의에는 정부 부처가 몇 개 있나요?", a: "3개", options: ["1개", "2개", "3개", "4개"] }
+      ]
     },
     laws: {
       change_tax: "세율 변경",
@@ -166,7 +232,7 @@ type GameState = {
   setRole: (role: Role) => void;
   travel: (regionId: string) => void;
   nextDay: () => void;
-  action: (kind: "work" | "train" | "campaign" | "trade" | "fight" | "vote" | "publish" | "rest") => void;
+  action: (kind: "work" | "train" | "campaign" | "trade" | "fight" | "vote" | "publish" | "rest" | "play_game") => void;
   runFactoryCycle: (factoryId: FactoryId, mode?: "manual" | "auto") => boolean;
   buyFactoryEnergy: (amount?: number) => boolean;
   upgradePerk: (perk: UpgradeablePerk) => boolean;
@@ -176,6 +242,7 @@ type GameState = {
   sendTroops: (warId: string, side: "attacker" | "defender", weapons: Record<string, number>, energy: number) => void;
   proposeBill: (lawType: LawType) => void;
   voteOnBill: (billId: string, vote: "pro" | "contra") => void;
+  winPlayGame: (xp: number, gold: number) => void;
 };
 
 type IndexedRegionKey = "healthIndex" | "militaryIndex" | "educationIndex" | "developmentIndex";
@@ -251,7 +318,8 @@ const initialPlayer: Player = {
   charisma: 5,
   stamina: 5,
   locationId: "us-east",
-  partyId: null
+  partyId: null,
+  dailyGamePlays: 0
 };
 
 const initialRegions: Region[] = [
@@ -533,15 +601,26 @@ export const getWarDefenseEstimate = (region: Region) => {
   return Math.round(baseDefense * regionMultiplier);
 };
 
-function grantXp(player: Player, amount: number) {
+function grantXp(player: Player, amount: number, state?: GameState) {
+  const oldLevel = player.level;
   player.xp += amount;
   while (player.xp >= player.xpToNext) {
     player.xp -= player.xpToNext;
     player.level += 1;
-    const multiplier = Math.min(1.1 + (player.level * 0.02), 1.5);
+    // Easier at low levels (multiplier starts small), harder at high (up to 1.5x)
+    const multiplier = Math.min(1.1 + (player.level * 0.02), 1.55);
     player.xpToNext = Math.floor(player.xpToNext * multiplier + 10);
     player.influence += 2;
     player.perkPoints += 2;
+  }
+  
+  // Milestone reward check
+  const oldMilestone = Math.floor(oldLevel / 10);
+  const newMilestone = Math.floor(player.level / 10);
+  if (newMilestone > oldMilestone && state) {
+    const reward = (newMilestone - oldMilestone) * 5000;
+    state.resources.gold = (state.resources.gold || 0) + reward;
+    state.log = withLog(state.log, state.day, `🎉 Milestone! Level ${player.level} reached: +${reward} Gold.`);
   }
 }
 
@@ -595,7 +674,8 @@ function runFactoryOutput(
   resources: Record<string, number>,
   workExperience: WorkExperience,
   factoryId: FactoryId,
-  energySpent: number
+  energySpent: number,
+  state?: GameState
 ) {
   gainFactoryExperience(player, region, workExperience, factoryId);
   const multiplier = getWorkOutputMultiplier(player, region, workExperience, factoryId);
@@ -607,7 +687,7 @@ function runFactoryOutput(
       const storedGold = addResource(resources, player, "gold", goldGain);
       const moneyGain = Math.round((90 + region.economy * 2 + player.intelligence * 4) * multiplier * scale) + rand(15, 45);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, Math.round((18 + region.educationIndex) * scale));
+      grantXp(player, Math.round((18 + region.educationIndex) * scale), state);
       return `Gold +${storedGold} | Money +${moneyGain}${storedGold < goldGain ? " | Storage full" : ""}`;
     }
     case "oil": {
@@ -615,7 +695,7 @@ function runFactoryOutput(
       const storedOil = addResource(resources, player, "oil", oilGain);
       const moneyGain = Math.round((75 + region.economy * 2 + player.intelligence * 3) * multiplier * scale) + rand(10, 35);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, Math.round((16 + region.educationIndex) * scale));
+      grantXp(player, Math.round((16 + region.educationIndex) * scale), state);
       return `Oil +${storedOil} | Money +${moneyGain}${storedOil < oilGain ? " | Storage full" : ""}`;
     }
     case "ore": {
@@ -623,7 +703,7 @@ function runFactoryOutput(
       const storedOre = addResource(resources, player, "iron", oreGain);
       const moneyGain = Math.round((70 + region.economy * 1.5 + player.strength * 4) * multiplier * scale) + rand(8, 30);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, Math.round((18 + region.educationIndex) * scale));
+      grantXp(player, Math.round((18 + region.educationIndex) * scale), state);
       return `Ore +${storedOre} | Money +${moneyGain}${storedOre < oreGain ? " | Storage full" : ""}`;
     }
     case "uranium": {
@@ -631,7 +711,7 @@ function runFactoryOutput(
       const storedUranium = addResource(resources, player, "uranium", uraniumGain);
       const moneyGain = Math.round((120 + region.economy * 2.5 + player.intelligence * 6) * multiplier * scale) + rand(20, 60);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, Math.round((24 + region.educationIndex) * scale));
+      grantXp(player, Math.round((24 + region.educationIndex) * scale), state);
       return `Uranium +${storedUranium} | Money +${moneyGain}${storedUranium < uraniumGain ? " | Storage full" : ""}`;
     }
     case "diamond": {
@@ -639,7 +719,7 @@ function runFactoryOutput(
       const storedDiamond = addResource(resources, player, "diamond", diamondGain);
       const moneyGain = Math.round((100 + region.economy * 2.2 + player.strength * 5) * multiplier) + rand(15, 35);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 20 + region.educationIndex);
+      grantXp(player, 20 + region.educationIndex, state);
       return `Diamond +${storedDiamond} | Money +${moneyGain}${storedDiamond < diamondGain ? " | Storage full" : ""}`;
     }
     case "liquid_oxygen": {
@@ -647,7 +727,7 @@ function runFactoryOutput(
       const storedOxygen = addResource(resources, player, "liquid_oxygen", oxygenGain);
       const moneyGain = Math.round((85 + region.economy * 1.8 + player.intelligence * 4) * multiplier) + rand(10, 30);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 18 + region.educationIndex);
+      grantXp(player, 18 + region.educationIndex, state);
       return `Liquid Oxygen +${storedOxygen} | Money +${moneyGain}${storedOxygen < oxygenGain ? " | Storage full" : ""}`;
     }
     case "helium_3": {
@@ -655,7 +735,7 @@ function runFactoryOutput(
       const storedHelium = addResource(resources, player, "helium_3", heliumGain);
       const moneyGain = Math.round((150 + region.economy * 3 + player.intelligence * 6) * multiplier) + rand(30, 80);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 25 + region.educationIndex);
+      grantXp(player, 25 + region.educationIndex, state);
       return `Helium-3 +${storedHelium} | Money +${moneyGain}${storedHelium < heliumGain ? " | Storage full" : ""}`;
     }
     case "rivalium": {
@@ -663,7 +743,7 @@ function runFactoryOutput(
       const storedRivalium = addResource(resources, player, "rivalium", rivaliumGain);
       const moneyGain = Math.round((200 + region.economy * 4 + player.intelligence * 8) * multiplier) + rand(50, 100);
       player.money = clamp(player.money + moneyGain, 0, 999999999);
-      grantXp(player, 30 + region.educationIndex);
+      grantXp(player, 30 + region.educationIndex, state);
       return `Rivalium +${storedRivalium} | Money +${moneyGain}${storedRivalium < rivaliumGain ? " | Storage full" : ""}`;
     }
     case "logistics": {
@@ -675,7 +755,7 @@ function runFactoryOutput(
       region.defense = clamp(region.defense + plan.defenseBoost * scale / 10, 20, 100);
       region.stability = clamp(region.stability + plan.stabilityBoost * scale / 10, 0, 100);
       player.influence = clamp(player.influence + (plan.influenceBoost + Math.floor(region.educationIndex / 4)) * scale / 10, 0, 999999999);
-      grantXp(player, Math.round((22 + region.educationIndex) * scale));
+      grantXp(player, Math.round((22 + region.educationIndex) * scale), state);
       return `${plan.label} +${region[plan.indexKey] - beforeIndex} | Economy upgraded | Influence expanded`;
     }
     default:
@@ -783,7 +863,7 @@ export const useGameStore = create<GameState>((set) => ({
       const player = { ...state.player };
       if (!spendAction(player, 8, 8)) return { log: withLog(state.log, state.day, "Not enough energy/time to travel.") };
       player.locationId = regionId;
-      grantXp(player, 8);
+      grantXp(player, 8, state);
       return { player, log: withLog(state.log, state.day, `Traveled to ${state.regions.find((region) => region.id === regionId)?.name}.`) };
     }),
 
@@ -811,8 +891,13 @@ export const useGameStore = create<GameState>((set) => ({
         trade: [10, 14],
         fight: [getWarEnergyCost(player, 18), getWarTimeCost(player, 20)],
         vote: [6, 8],
-        publish: [12, 18]
+        publish: [12, 18],
+        play_game: [10, 10]
       };
+      
+      if (kind === "play_game" && player.dailyGamePlays >= 5) {
+        return { log: withLog(log, state.day, "Daily game limit reached (5/5).") };
+      }
       if (!spendAction(player, cost[kind][0], cost[kind][1])) {
         return { log: withLog(log, state.day, `Not enough energy/time for ${kind}.`) };
       }
@@ -823,14 +908,14 @@ export const useGameStore = create<GameState>((set) => ({
         const pay = Math.round((45 + region.economy * 1.5 + player.intelligence * 2) * multiplier) + rand(0, 25);
         const foodGain = addResource(resources, player, "food", 1 + Math.floor(region.healthIndex / 4));
         player.money = clamp(player.money + pay, 0, 999999999);
-        grantXp(player, 15 + region.educationIndex);
+        grantXp(player, 15 + region.educationIndex, state);
         log = withLog(log, state.day, `Worked locally and earned ${pay}. Food +${foodGain}.`);
       }
       if (kind === "train") {
         player.strength += 1;
         player.stamina += 1;
         player.hp = clamp(player.hp + Math.floor(region.healthIndex / 2), 0, 120);
-        grantXp(player, 18 + region.militaryIndex);
+        grantXp(player, 18 + region.militaryIndex, state);
         log = withLog(log, state.day, "Training improved STR and STA.");
       }
       if (kind === "campaign") {
@@ -839,7 +924,7 @@ export const useGameStore = create<GameState>((set) => ({
           if (party) party.popularity = clamp(party.popularity + 2 + Math.floor(player.charisma / 3) + Math.floor(region.developmentIndex / 3), 1, 99);
         }
         player.influence += 3 + Math.floor(region.developmentIndex / 3);
-        grantXp(player, 20 + region.developmentIndex);
+        grantXp(player, 20 + region.developmentIndex, state);
         log = withLog(log, state.day, "Campaign shifted public opinion.");
       }
       if (kind === "trade") {
@@ -848,7 +933,7 @@ export const useGameStore = create<GameState>((set) => ({
         player.energyCredits = clamp(player.energyCredits + rand(60, 180) + region.developmentIndex * 10, 0, 999999999);
         const oilGain = addResource(resources, player, "oil", rand(0, 1));
         const ironGain = addResource(resources, player, "iron", rand(0, 2));
-        grantXp(player, 14 + region.developmentIndex);
+        grantXp(player, 14 + region.developmentIndex, state);
         log = withLog(log, state.day, `Trade result: ${delta >= 0 ? "+" : ""}${delta} money | Oil +${oilGain} | Ore +${ironGain}.`);
       }
       if (kind === "fight") {
@@ -859,12 +944,12 @@ export const useGameStore = create<GameState>((set) => ({
           player.money = clamp(player.money + 120 + region.militaryIndex * 15, 0, 999999999);
           player.influence += 4 + Math.floor(region.militaryIndex / 2);
           log = withLog(log, state.day, `Skirmish won in ${region.name}.`);
-          grantXp(player, 30 + region.militaryIndex);
+          grantXp(player, 30 + region.militaryIndex, state);
         } else {
           player.hp = clamp(player.hp - rand(8, 18), 0, 120);
           region.stability = clamp(region.stability - 5, 0, 100);
           log = withLog(log, state.day, `Skirmish lost in ${region.name}.`);
-          grantXp(player, 12 + Math.floor(region.militaryIndex / 2));
+          grantXp(player, 12 + Math.floor(region.militaryIndex / 2), state);
         }
       }
       if (kind === "vote") {
@@ -874,7 +959,7 @@ export const useGameStore = create<GameState>((set) => ({
           const party = parties.find((entry) => entry.id === player.partyId);
           if (party) party.popularity = clamp(party.popularity + 1 + Math.floor(region.developmentIndex / 4), 1, 99);
           player.influence += 1;
-          grantXp(player, 10 + region.developmentIndex);
+          grantXp(player, 10 + region.developmentIndex, state);
           log = withLog(log, state.day, "Your vote was counted.");
         }
       }
@@ -889,7 +974,11 @@ export const useGameStore = create<GameState>((set) => ({
         grantXp(player, 18 + region.educationIndex);
         log = withLog(log, state.day, `Published article. Influence +${impact}.`);
       }
-
+      
+      if (kind === "play_game") {
+        // Increment occurs after quiz success now, but basic action logic exists
+      }
+      
       return { player, resources, parties, regions, workExperience, log };
     }),
 
@@ -958,7 +1047,7 @@ export const useGameStore = create<GameState>((set) => ({
         player.time -= timeNeeded;
       }
 
-      const outputMessage = runFactoryOutput(player, region, resources, workExperience, factoryId, actualEnergySpent);
+      const outputMessage = runFactoryOutput(player, region, resources, workExperience, factoryId, actualEnergySpent, state);
       log = withLog(log, state.day, `${mode === "auto" ? "Auto cycle" : "Full work burst"} at ${label}. ${outputMessage}.`);
       success = true;
       return { player, resources, regions, workExperience, log };
@@ -1033,12 +1122,12 @@ export const useGameStore = create<GameState>((set) => ({
         target.owner = player.partyId ?? from.owner;
         target.stability = clamp(target.stability - 10, 10, 100);
         player.influence += 9;
-        grantXp(player, 50 + target.militaryIndex);
+        grantXp(player, 50 + target.militaryIndex, state);
         return { player, regions, log: withLog(state.log, state.day, `Territory won: ${target.name}.`) };
       }
 
       player.hp = clamp(player.hp - rand(10, 20), 0, 120);
-      grantXp(player, 18 + target.militaryIndex);
+      grantXp(player, 18 + target.militaryIndex, state);
       return { player, log: withLog(state.log, state.day, `Attack failed on ${target.name}.`) };
     }),
 
@@ -1077,7 +1166,7 @@ export const useGameStore = create<GameState>((set) => ({
         effectValue,
         targetRegionId: region.id,
       };
-      grantXp(player, 15);
+      grantXp(player, 15, state);
       return {
         player,
         bills: [...state.bills, newBill],
@@ -1147,14 +1236,23 @@ export const useGameStore = create<GameState>((set) => ({
           locRegion.stability = clamp(locRegion.stability - 15, 0, 100);
         }
         
-        grantXp(player, 20);
+        grantXp(player, 20, state);
         return { player, bills, laws, regions, log: withLog(state.log, state.day, passLog) };
       }
       if (bill.votesAgainst / Math.max(1, totalCast) > (1 - threshold)) {
         bill.status = "rejected";
       }
-      grantXp(player, 8);
+      grantXp(player, 8, state);
       return { player, bills, log: withLog(state.log, state.day, `Voted ${vote.toUpperCase()} on "${bill.title}". For: ${bill.votesFor}, Against: ${bill.votesAgainst}.`) };
+    }),
+
+  winPlayGame: (xp, money) =>
+    set((state) => {
+      const player = { ...state.player };
+      player.dailyGamePlays += 1;
+      const resources = { ...state.resources }; resources.gold = (resources.gold || 0) + money;
+      grantXp(player, xp, state);
+      return { player, resources, log: withLog(state.log, state.day, `Quiz Success! Earned ${money}G and ${xp} XP. Plays left today: ${5 - player.dailyGamePlays}`) };
     }),
 
   nextDay: () =>
@@ -1168,6 +1266,7 @@ export const useGameStore = create<GameState>((set) => ({
       // Energy: Discrete +10E refill every 10min (600 ticks).
       if (dayStarted) {
         player.energy = clamp(player.energy + 10, 0, 300);
+        player.dailyGamePlays = 0;
       }
       player.time = clamp(player.time + 0.1, 0, 120);
 
@@ -1245,7 +1344,7 @@ export const useGameStore = create<GameState>((set) => ({
         war.defenderDamage += contribution;
       }
 
-      grantXp(player, Math.floor(energy * 1.5));
+      grantXp(player, Math.floor(energy * 1.5), state);
       player.influence += Math.floor(energy / 25);
 
       return {
