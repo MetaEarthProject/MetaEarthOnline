@@ -118,3 +118,15 @@ export type ResourceStorage = {
   helium_3?: number;
   rivalium?: number;
 };
+
+export type WeaponType = "rifle" | "tank" | "fighter_jet" | "bomber" | "naval_ship" | "drone" | "missile";
+export type WeaponInventory = Record<WeaponType, number>;
+
+export type MarketOrder = {
+  id: string;
+  type: "buy" | "sell";
+  resource: string;
+  quantity: number;
+  pricePerUnit: number;
+  isSystem: boolean;
+};

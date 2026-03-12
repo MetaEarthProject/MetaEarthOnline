@@ -2015,6 +2015,690 @@ body {
   margin-top: 8px;
 }
 
+/* ─── Storage Sub-tabs ─── */
+.storage-subtabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid rgba(243, 229, 186, 0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0e0e0e;
+}
+
+.storage-subtab {
+  padding: 10px 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b6b5a;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(243, 229, 186, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--work-ui-font);
+}
+
+.storage-subtab:last-child {
+  border-right: none;
+}
+
+.storage-subtab:hover {
+  color: #bbb;
+  background: rgba(243, 229, 186, 0.04);
+}
+
+.storage-subtab.active {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(232, 196, 74, 0.15) 0%, rgba(232, 196, 74, 0.04) 100%);
+  box-shadow: inset 0 -2px 0 var(--work-gold);
+}
+
+/* ─── Trade Resources Strip ─── */
+.trade-resources-strip {
+  padding: 12px;
+  border: 1px solid rgba(243, 229, 186, 0.12);
+  background: linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
+  border-radius: 4px;
+}
+
+.trade-resources-strip h3 {
+  margin: 0 0 8px;
+  color: var(--work-gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.trade-resources-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trade-res-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+  flex: 1;
+  min-width: 60px;
+}
+
+.trade-res-chip span {
+  color: #888;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.trade-res-chip strong {
+  color: #fff;
+  font-size: 0.82rem;
+}
+
+.trade-res-chip.money {
+  border-color: rgba(232, 196, 74, 0.2);
+  background: rgba(232, 196, 74, 0.06);
+}
+
+.trade-res-chip.money span {
+  color: var(--work-gold);
+}
+
+.trade-res-chip.money strong {
+  color: var(--work-gold);
+}
+
+/* ─── Trade Section ─── */
+.trade-section {
+  padding: 0;
+}
+
+.trade-section-title {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(243, 229, 186, 0.1);
+  border-radius: 4px 4px 0 0;
+}
+
+.trade-section-title.sell-title {
+  color: #ffcc66;
+  background: linear-gradient(90deg, rgba(255, 170, 0, 0.08), transparent);
+  border-bottom: none;
+}
+
+.trade-section-title.buy-title {
+  color: #66ddaa;
+  background: linear-gradient(90deg, rgba(0, 200, 100, 0.08), transparent);
+  border-bottom: none;
+}
+
+.trade-section-title small {
+  font-size: 0.64rem;
+  font-weight: 600;
+  opacity: 0.65;
+  margin-left: 4px;
+}
+
+.trade-orders-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(243, 229, 186, 0.08);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: rgba(10, 10, 10, 0.6);
+}
+
+.trade-order-card {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #1a1a18 0%, #101010 100%);
+  transition: all 0.2s ease;
+}
+
+.trade-order-card:hover {
+  border-color: rgba(243, 229, 186, 0.2);
+  transform: translateY(-1px);
+}
+
+.trade-order-card.sell {
+  border-left: 3px solid rgba(255, 180, 50, 0.5);
+}
+
+.trade-order-card.buy {
+  border-left: 3px solid rgba(80, 200, 120, 0.5);
+}
+
+.trade-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.trade-order-resource {
+  color: #fff;
+  font-size: 0.82rem;
+}
+
+.trade-order-price {
+  color: var(--work-gold);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.trade-order-detail {
+  margin-bottom: 8px;
+}
+
+.trade-order-detail span {
+  color: #777;
+  font-size: 0.64rem;
+}
+
+.trade-order-action {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 6px;
+}
+
+.trade-qty-input {
+  width: 100%;
+  padding: 6px 4px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.78rem;
+  text-align: center;
+  outline: none;
+  font-family: var(--work-display-font);
+}
+
+.trade-qty-input:focus {
+  border-color: var(--work-gold);
+}
+
+.trade-exec-btn {
+  padding: 6px 8px;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trade-exec-btn.sell-btn {
+  background: linear-gradient(180deg, #cc8800, #aa6600);
+  color: #fff;
+}
+
+.trade-exec-btn.sell-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #dd9900, #bb7700);
+  box-shadow: 0 0 12px rgba(200, 140, 0, 0.3);
+}
+
+.trade-exec-btn.buy-btn {
+  background: linear-gradient(180deg, #2a8855, #1a6640);
+  color: #fff;
+}
+
+.trade-exec-btn.buy-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #33aa66, #228855);
+  box-shadow: 0 0 12px rgba(50, 180, 100, 0.3);
+}
+
+.trade-exec-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ─── Craft Section ─── */
+.craft-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+}
+
+.cr-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  background: rgba(10, 10, 10, 0.6);
+  border: 1px solid rgba(243, 229, 186, 0.15);
+  border-radius: 4px;
+}
+
+.cr-selector label {
+  color: #888;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.craft-recipe-card {
+  padding: 12px;
+  border: 1px solid rgba(243, 229, 186, 0.12);
+  background: linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
+  border-radius: 4px;
+  transition: all 0.25s ease;
+}
+
+.craft-recipe-card:hover {
+  border-color: rgba(243, 229, 186, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.craft-recipe-card.disabled {
+  opacity: 0.5;
+}
+
+.craft-recipe-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.craft-recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(243, 229, 186, 0.08);
+}
+
+.craft-weapon-name {
+  color: #fff;
+  font-size: 0.82rem;
+  font-family: var(--work-display-font);
+}
+
+.craft-owned-badge {
+  color: var(--work-gold);
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border: 1px solid rgba(232, 196, 74, 0.2);
+  border-radius: 3px;
+  background: rgba(232, 196, 74, 0.06);
+}
+
+.craft-recipe-costs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.craft-cost-item {
+  display: inline-block;
+  padding: 3px 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #bbb;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.craft-cost-item.money {
+  color: var(--work-gold);
+  border-color: rgba(232, 196, 74, 0.15);
+}
+
+.craft-cost-item.deficit {
+  color: #ff9999;
+  border-color: rgba(255, 100, 100, 0.3);
+  background: rgba(255, 100, 100, 0.1);
+}
+
+.craft-btn {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(180deg, rgba(232, 196, 74, 0.2) 0%, rgba(232, 196, 74, 0.08) 100%);
+  color: var(--work-gold);
+  border: 1px solid rgba(232, 196, 74, 0.25);
+}
+
+.craft-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(232, 196, 74, 0.35) 0%, rgba(232, 196, 74, 0.15) 100%);
+  box-shadow: 0 0 15px rgba(232, 196, 74, 0.2);
+  border-color: rgba(232, 196, 74, 0.5);
+}
+
+.craft-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #666;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 420px) {
+  .trade-orders-grid,
+  .craft-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Order Form Panel ─── */
+.order-form-panel {
+  padding: 14px;
+  border: 1px solid rgba(243, 229, 186, 0.15);
+  background: linear-gradient(180deg, #1a1a18 0%, #0e0e0c 100%);
+  border-radius: 4px;
+}
+
+.order-form-panel h3 {
+  margin: 0 0 10px;
+  color: var(--work-gold);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.order-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.order-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-form-field label {
+  color: #888;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.order-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.order-type-btn {
+  padding: 7px 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  color: #666;
+  background: transparent;
+}
+
+.order-type-btn.buy-type.active {
+  color: #fff;
+  background: linear-gradient(180deg, #2a8855, #1a6640);
+}
+
+.order-type-btn.sell-type.active {
+  color: #fff;
+  background: linear-gradient(180deg, #cc8800, #aa6600);
+}
+
+.order-form-select,
+.order-form-input {
+  padding: 7px 8px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.78rem;
+  outline: none;
+  font-family: var(--work-display-font);
+}
+
+.order-form-select:focus,
+.order-form-input:focus {
+  border-color: var(--work-gold);
+}
+
+.order-form-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.order-form-summary {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.order-form-summary span {
+  color: var(--work-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.order-form-submit {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.order-form-submit.buy {
+  background: linear-gradient(180deg, #2a8855, #1a6640);
+}
+
+.order-form-submit.buy:hover {
+  background: linear-gradient(180deg, #33aa66, #228855);
+  box-shadow: 0 0 12px rgba(50, 180, 100, 0.3);
+}
+
+.order-form-submit.sell {
+  background: linear-gradient(180deg, #cc8800, #aa6600);
+}
+
+.order-form-submit.sell:hover {
+  background: linear-gradient(180deg, #dd9900, #bb7700);
+  box-shadow: 0 0 12px rgba(200, 140, 0, 0.3);
+}
+
+/* ─── Order Book Cards ─── */
+.order-book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ob-card {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  background: rgba(10, 10, 10, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
+.ob-card.sell {
+  border-left: 3px solid rgba(255, 100, 100, 0.3);
+}
+
+.ob-card.buy {
+  border-left: 3px solid rgba(80, 200, 120, 0.3);
+}
+
+.ob-card.system {
+  opacity: 0.85;
+}
+
+.ob-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.ob-card-bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ob-resource {
+  color: #ddd;
+  font-size: 0.74rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ob-tag {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+}
+
+.ob-tag.sys {
+  background: rgba(150, 150, 255, 0.15);
+  color: #99aaff;
+  border: 1px solid rgba(150, 150, 255, 0.25);
+}
+
+.ob-tag.player {
+  background: rgba(232, 196, 74, 0.12);
+  color: var(--work-gold);
+  border: 1px solid rgba(232, 196, 74, 0.25);
+}
+
+.ob-price {
+  color: var(--work-gold);
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-family: var(--work-display-font);
+}
+
+.ob-qty {
+  color: #aaa;
+  font-size: 0.74rem;
+  font-family: var(--work-display-font);
+}
+
+.ob-action-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ob-input {
+  width: 44px;
+  padding: 4px 2px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  color: #fff;
+  font-size: 0.7rem;
+  text-align: center;
+  outline: none;
+  font-family: var(--work-display-font);
+}
+
+.ob-input:focus {
+  border-color: var(--work-gold);
+}
+
+.ob-fill-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 2px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.ob-fill-btn.buy-btn {
+  background: linear-gradient(180deg, #2a8855, #1a6640);
+}
+
+.ob-fill-btn.sell-btn {
+  background: linear-gradient(180deg, #cc8800, #aa6600);
+}
+
+.ob-fill-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ob-fill-btn:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.ob-cancel-btn {
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: #222;
+  color: #aaa;
+}
+
+.ob-cancel-btn:hover {
+  background: #442222;
+  color: #ffaaaa;
+  border-color: #ffaaaa;
+}
+
 @media (max-width: 420px) {
 
   .storage-grid,

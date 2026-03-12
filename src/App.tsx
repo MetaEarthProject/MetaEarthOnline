@@ -13,9 +13,11 @@ import {
   useGameStore,
   translations,
   LAW_DEFINITIONS,
-  ALL_LAW_TYPES
+  ALL_LAW_TYPES,
+  WEAPON_RECIPES,
+  SYSTEM_MARKET_ORDERS
 } from "./store/gameStore";
-import type { FactoryId, Region, LawType, LawCategory, Bill } from "./types";
+import type { FactoryId, Region, LawType, LawCategory, Bill, WeaponType } from "./types";
 import type { Language } from "./store/gameStore";
 
 type AppTab = "home" | "storage" | "map" | "parliament" | "work" | "wars" | "profile";
@@ -25,6 +27,7 @@ type WorkFactoryTone = "gold" | "oil" | "ore" | "uranium" | "diamond" | "liquid_
 type WarConflictTone = "danger" | "alert" | "friendly";
 type StorageTone = "gold" | "blue" | "green" | "red";
 type ParliamentSubPage = "overview" | "enact_law";
+type StorageSubPage = "inventory" | "trade" | "craft";
 
 type TabItem = {
   key: Exclude<AppTab, "map" | "parliament">;
@@ -847,6 +850,8 @@ export default function App() {
     regions,
     resources,
     military,
+    weapons,
+    marketOrders,
     workExperience,
     laws,
     log,
@@ -866,7 +871,11 @@ export default function App() {
     bills,
     proposeBill,
     voteOnBill,
-    winPlayGame
+    winPlayGame,
+    placeOrder,
+    fillOrder,
+    cancelOrder,
+    craftWeapon
   } = useGameStore();
 
   const rest = () => action("rest");
@@ -887,6 +896,13 @@ export default function App() {
   const [lawCategoryFilter, setLawCategoryFilter] = useState<LawCategory | "all">("all");
   const [selectedLawType, setSelectedLawType] = useState<LawType | null>(null);
   const [billListFilter, setBillListFilter] = useState<"pending" | "accepted" | "rejected">("pending");
+  const [storageSubPage, setStorageSubPage] = useState<StorageSubPage>("inventory");
+  const [tradeAmounts, setTradeAmounts] = useState<Record<string, number>>({});
+  const [orderFormType, setOrderFormType] = useState<"buy" | "sell">("buy");
+  const [orderFormResource, setOrderFormResource] = useState("gold");
+  const [orderFormQty, setOrderFormQty] = useState<number | "">(1);
+  const [orderFormPrice, setOrderFormPrice] = useState<number | "">(200);
+  const [selectedWeapon, setSelectedWeapon] = useState<WeaponType>("rifle");
   const [selectedWar, setSelectedWar] = useState<WarConflict | null>(null);
   const [isTrainingOpen, setIsTrainingOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
@@ -1593,69 +1609,321 @@ export default function App() {
 
           {isStorageTab && (
             <div className="storage-page">
-              <section className="me-storage-grid">
-                {storageOverview.map((item) => (
-                  <StorageMetricCard
-                    key={item.label}
-                    label={item.label}
-                    value={item.value}
-                    detail={item.detail}
-                    tone={item.tone}
-                    icon={item.icon}
-                  />
+              {/* Sub-tab bar */}
+              <nav className="storage-subtabs">
+                {(["inventory", "trade", "craft"] as StorageSubPage[]).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    className={`storage-subtab${storageSubPage === tab ? " active" : ""}`}
+                    onClick={() => setStorageSubPage(tab)}
+                  >
+                    {tab === "inventory" ? t.ui.inventory : tab === "trade" ? t.ui.tradeMarket : t.ui.craftWeapons}
+                  </button>
                 ))}
-              </section>
+              </nav>
 
-              <section className="me-storage-panel">
-                <div className="storage-panel-head">
-                  <h2>Regional storage</h2>
-                  <span>{region.city} logistics depot</span>
-                </div>
-                <div className="me-storage-list two-col">
-                  {storageLogistics.map((item) => (
-                    <article key={item.label} className="me-storage-list-item">
-                      <div className="me-storage-list-icon">
-                        <Icon name={item.icon} className="me-storage-mini-icon" />
-                      </div>
-                      <div className="me-storage-list-copy">
-                        <span>{item.label}</span>
-                        <strong>{item.value}</strong>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
+              {/* ── INVENTORY TAB ── */}
+              {storageSubPage === "inventory" && (
+                <>
+                  <section className="me-storage-grid">
+                    {storageOverview.map((item) => (
+                      <StorageMetricCard
+                        key={item.label}
+                        label={item.label}
+                        value={item.value}
+                        detail={item.detail}
+                        tone={item.tone}
+                        icon={item.icon}
+                      />
+                    ))}
+                  </section>
 
-              <section className="me-storage-panel">
-                <div className="storage-panel-head">
-                  <h2>Military stock</h2>
-                  <span>Ready for deployment</span>
-                </div>
-                <div className="me-storage-list">
-                  {storageArsenal.map((item) => (
-                    <article key={item.label} className="me-storage-list-item expanded">
-                      <div className="me-storage-list-icon">
-                        <Icon name={item.icon} className="me-storage-mini-icon" />
-                      </div>
-                      <div className="me-storage-list-copy">
-                        <div className="me-storage-list-top">
-                          <span>{item.label}</span>
-                          <strong>{item.value}</strong>
+                  <section className="me-storage-panel">
+                    <div className="storage-panel-head">
+                      <h2>Regional storage</h2>
+                      <span>{region.city} logistics depot</span>
+                    </div>
+                    <div className="me-storage-list two-col">
+                      {storageLogistics.map((item) => (
+                        <article key={item.label} className="me-storage-list-item">
+                          <div className="me-storage-list-icon">
+                            <Icon name={item.icon} className="me-storage-mini-icon" />
+                          </div>
+                          <div className="me-storage-list-copy">
+                            <span>{item.label}</span>
+                            <strong>{item.value}</strong>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="me-storage-panel">
+                    <div className="storage-panel-head">
+                      <h2>Military stock</h2>
+                      <span>Ready for deployment</span>
+                    </div>
+                    <div className="me-storage-list">
+                      {storageArsenal.map((item) => (
+                        <article key={item.label} className="me-storage-list-item expanded">
+                          <div className="me-storage-list-icon">
+                            <Icon name={item.icon} className="me-storage-mini-icon" />
+                          </div>
+                          <div className="me-storage-list-copy">
+                            <div className="me-storage-list-top">
+                              <span>{item.label}</span>
+                              <strong>{item.value}</strong>
+                            </div>
+                            <small>{item.detail}</small>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                    <div className="storage-actions">
+                      <button type="button" className="home-wide-btn" onClick={() => action("trade")}>
+                        Open market shipment
+                      </button>
+                      <button type="button" className="home-wide-btn" onClick={() => action("rest")}>
+                        Refill energy reserves
+                      </button>
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {/* ── TRADE TAB ── */}
+              {storageSubPage === "trade" && (
+                <>
+                  {/* Player resources strip */}
+                  <section className="trade-resources-strip">
+                    <h3>{t.ui.yourResources}</h3>
+                    <div className="trade-resources-row">
+                      <div className="trade-res-chip"><span>Gold</span><strong>{resources.gold ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Oil</span><strong>{resources.oil ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Iron</span><strong>{resources.iron ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Uranium</span><strong>{resources.uranium ?? 0}</strong></div>
+                      <div className="trade-res-chip money"><span>$</span><strong>{formatNumber(player.money)}</strong></div>
+                    </div>
+                  </section>
+
+                  {/* ── Place Order Form ── */}
+                  <section className="order-form-panel">
+                    <h3>{t.ui.placeOrder}</h3>
+                    <div className="order-form-grid">
+                      <div className="order-form-field">
+                        <label>{t.ui.orderType}</label>
+                        <div className="order-type-toggle">
+                          <button
+                            type="button"
+                            className={`order-type-btn buy-type${orderFormType === "buy" ? " active" : ""}`}
+                            onClick={() => setOrderFormType("buy")}
+                          >
+                            {t.ui.buyFromSystem}
+                          </button>
+                          <button
+                            type="button"
+                            className={`order-type-btn sell-type${orderFormType === "sell" ? " active" : ""}`}
+                            onClick={() => setOrderFormType("sell")}
+                          >
+                            {t.ui.sellToSystem}
+                          </button>
                         </div>
-                        <small>{item.detail}</small>
                       </div>
-                    </article>
-                  ))}
-                </div>
-                <div className="storage-actions">
-                  <button type="button" className="home-wide-btn" onClick={() => action("trade")}>
-                    Open market shipment
-                  </button>
-                  <button type="button" className="home-wide-btn" onClick={() => action("rest")}>
-                    Refill energy reserves
-                  </button>
-                </div>
-              </section>
+                      <div className="order-form-field">
+                        <label>{t.ui.selectResource}</label>
+                        <select className="order-form-select" value={orderFormResource} onChange={(e) => setOrderFormResource(e.target.value)}>
+                          {["gold", "oil", "iron", "uranium"].map((r) => (
+                            <option key={r} value={r}>{(t.resources as any)[r] ?? r}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="order-form-field">
+                        <label>{t.ui.quantity}</label>
+                        <input
+                          type="number"
+                          className="order-form-input"
+                          min={1}
+                          value={orderFormQty}
+                          onChange={(e) => setOrderFormQty(e.target.value === "" ? "" : Math.max(1, Number(e.target.value)))}
+                          onBlur={() => { if (orderFormQty === "") setOrderFormQty(1); }}
+                        />
+                      </div>
+                      <div className="order-form-field">
+                        <label>{t.ui.price}</label>
+                        <input
+                          type="number"
+                          className="order-form-input"
+                          min={1}
+                          value={orderFormPrice}
+                          onChange={(e) => setOrderFormPrice(e.target.value === "" ? "" : Math.max(1, Number(e.target.value)))}
+                          onBlur={() => { if (orderFormPrice === "") setOrderFormPrice(1); }}
+                        />
+                      </div>
+                    </div>
+                    <div className="order-form-summary">
+                      <span>{t.ui.total}: ${formatNumber((orderFormQty || 0) * (orderFormPrice || 0))}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className={`order-form-submit ${orderFormType}`}
+                      onClick={() => placeOrder(orderFormType, orderFormResource, Number(orderFormQty) || 1, Number(orderFormPrice) || 1)}
+                    >
+                      {t.ui.placeOrder}: {orderFormType === "buy" ? t.ui.buyFromSystem : t.ui.sellToSystem} {orderFormQty || 1} {(t.resources as any)[orderFormResource] ?? orderFormResource} @ ${formatNumber(Number(orderFormPrice) || 1)}
+                    </button>
+                  </section>
+
+                  {/* ── Sell Offers (ascending price) ── */}
+                  <section className="trade-section">
+                    <h3 className="trade-section-title sell-title">⬆ {t.ui.sellOrders}</h3>
+                    <div className="order-book-list">
+                      {[...marketOrders]
+                        .filter(o => o.type === "sell")
+                        .sort((a, b) => a.pricePerUnit - b.pricePerUnit)
+                        .map((order) => {
+                          const amt = tradeAmounts[order.id] ?? 1;
+                          return (
+                            <div key={order.id} className={`ob-card sell${order.isSystem ? " system" : ""}`}>
+                              <div className="ob-card-top">
+                                <span className="ob-resource">{(t.resources as any)[order.resource] ?? order.resource}
+                                  {order.isSystem ? <small className="ob-tag sys">SYS</small> : <small className="ob-tag player">YOU</small>}
+                                </span>
+                                <span className="ob-price">${formatNumber(order.pricePerUnit)}</span>
+                                <span className="ob-qty">{order.isSystem ? "∞" : order.quantity}</span>
+                              </div>
+                              <div className="ob-card-bottom">
+                                {order.isSystem || !order.isSystem ? (
+                                  <div className="ob-action-row">
+                                    <input
+                                      type="number"
+                                      className="ob-input"
+                                      min={1}
+                                      value={amt}
+                                      onChange={(e) => setTradeAmounts(prev => ({ ...prev, [order.id]: e.target.value === "" ? 1 : Math.max(1, Number(e.target.value)) }))}
+                                    />
+                                    <button type="button" className="ob-fill-btn buy-btn" onClick={() => fillOrder(order.id, amt)} disabled={player.money < amt * order.pricePerUnit}>
+                                      {t.ui.buyFromSystem}
+                                    </button>
+                                    {!order.isSystem && (
+                                      <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
+                                    )}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </section>
+
+                  {/* ── Buy Offers (descending price) ── */}
+                  <section className="trade-section">
+                    <h3 className="trade-section-title buy-title">⬇ {t.ui.buyOrders}</h3>
+                    <div className="order-book-list">
+                      {[...marketOrders]
+                        .filter(o => o.type === "buy")
+                        .sort((a, b) => b.pricePerUnit - a.pricePerUnit)
+                        .map((order) => {
+                          const amt = tradeAmounts[order.id] ?? 1;
+                          const available = resources[order.resource] ?? 0;
+                          return (
+                            <div key={order.id} className={`ob-card buy${order.isSystem ? " system" : ""}`}>
+                              <div className="ob-card-top">
+                                <span className="ob-resource">{(t.resources as any)[order.resource] ?? order.resource}
+                                  {order.isSystem ? <small className="ob-tag sys">SYS</small> : <small className="ob-tag player">YOU</small>}
+                                </span>
+                                <span className="ob-price">${formatNumber(order.pricePerUnit)}</span>
+                                <span className="ob-qty">{order.isSystem ? "∞" : order.quantity}</span>
+                              </div>
+                              <div className="ob-card-bottom">
+                                <div className="ob-action-row">
+                                  <input
+                                    type="number"
+                                    className="ob-input"
+                                    min={1}
+                                    value={amt}
+                                    onChange={(e) => setTradeAmounts(prev => ({ ...prev, [order.id]: e.target.value === "" ? 1 : Math.max(1, Number(e.target.value)) }))}
+                                  />
+                                  <button type="button" className="ob-fill-btn sell-btn" onClick={() => fillOrder(order.id, amt)} disabled={available <= 0}>
+                                    {t.ui.sellToSystem}
+                                  </button>
+                                  {!order.isSystem && (
+                                    <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {/* ── CRAFT TAB ── */}
+              {storageSubPage === "craft" && (
+                <>
+                  {/* Player resources strip */}
+                  <section className="trade-resources-strip">
+                    <h3>{t.ui.yourResources}</h3>
+                    <div className="trade-resources-row">
+                      <div className="trade-res-chip"><span>Gold</span><strong>{resources.gold ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Oil</span><strong>{resources.oil ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Iron</span><strong>{resources.iron ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>Uranium</span><strong>{resources.uranium ?? 0}</strong></div>
+                      <div className="trade-res-chip money"><span>$</span><strong>{formatNumber(player.money)}</strong></div>
+                    </div>
+                  </section>
+
+                  <section className="craft-section">
+                    <div className="cr-selector">
+                      <label>{t.ui.selectResource}</label>
+                      <select className="order-form-select" value={selectedWeapon} onChange={(e) => setSelectedWeapon(e.target.value as WeaponType)}>
+                        {(Object.keys(WEAPON_RECIPES) as WeaponType[]).map((wType) => (
+                          <option key={wType} value={wType}>
+                            {(t.weapons as any)[wType] ?? wType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(() => {
+                      const recipe = WEAPON_RECIPES[selectedWeapon];
+                      const canCraft =
+                        (resources.iron ?? 0) >= recipe.iron &&
+                        (resources.gold ?? 0) >= recipe.gold &&
+                        (resources.uranium ?? 0) >= recipe.uranium &&
+                        (resources.oil ?? 0) >= recipe.oil &&
+                        player.money >= recipe.money;
+                      const weaponLabel = (t.weapons as any)[selectedWeapon] ?? selectedWeapon.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                      
+                      return (
+                        <article className={`craft-recipe-card${canCraft ? "" : " disabled"}`}>
+                          <div className="craft-recipe-header">
+                            <strong className="craft-weapon-name">{weaponLabel}</strong>
+                            <span className="craft-owned-badge">{t.ui.owned}: {weapons[selectedWeapon]}</span>
+                          </div>
+                          <div className="craft-recipe-costs">
+                            <span className={`craft-cost-item${(resources.iron ?? 0) < recipe.iron ? ' deficit' : ''}`}>🪨 Iron: {recipe.iron} {(resources.iron ?? 0) < recipe.iron ? `(${resources.iron ?? 0}/${recipe.iron})` : ''}</span>
+                            <span className={`craft-cost-item${(resources.gold ?? 0) < recipe.gold ? ' deficit' : ''}`}>🥇 Gold: {recipe.gold} {(resources.gold ?? 0) < recipe.gold ? `(${resources.gold ?? 0}/${recipe.gold})` : ''}</span>
+                            {recipe.uranium > 0 && <span className={`craft-cost-item${(resources.uranium ?? 0) < recipe.uranium ? ' deficit' : ''}`}>☢ Uranium: {recipe.uranium} {(resources.uranium ?? 0) < recipe.uranium ? `(${resources.uranium ?? 0}/${recipe.uranium})` : ''}</span>}
+                            {recipe.oil > 0 && <span className={`craft-cost-item${(resources.oil ?? 0) < recipe.oil ? ' deficit' : ''}`}>🛢 Oil: {recipe.oil} {(resources.oil ?? 0) < recipe.oil ? `(${resources.oil ?? 0}/${recipe.oil})` : ''}</span>}
+                            <span className={`craft-cost-item money${player.money < recipe.money ? ' deficit' : ''}`}>💰 ${formatNumber(recipe.money)} {player.money < recipe.money ? `($${formatNumber(player.money)}/$${formatNumber(recipe.money)})` : ''}</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="craft-btn"
+                            disabled={!canCraft}
+                            onClick={() => craftWeapon(selectedWeapon)}
+                          >
+                            {canCraft ? t.ui.craftBtn : t.ui.insufficientResources}
+                          </button>
+                        </article>
+                      );
+                    })()}
+                  </section>
+                </>
+              )}
             </div>
           )}
 

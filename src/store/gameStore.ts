@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import world from "@svg-maps/world";
-import type { FactoryId, Party, Player, Region, Role, UpgradeablePerk, WorkExperience, War, WarType, ResourceStorage, StateType, Bill, LawType, LawCategory } from "../types";
+import type { FactoryId, Party, Player, Region, Role, UpgradeablePerk, WorkExperience, War, WarType, ResourceStorage, StateType, Bill, LawType, LawCategory, WeaponType, WeaponInventory, MarketOrder } from "../types";
 
 export type Language = 'en' | 'ko';
 
@@ -49,7 +49,46 @@ export const translations: Record<Language, any> = {
       quizAbandon: "Abandon Quest",
       nextQuiz: "Next Question",
       changeSubject: "Change Subject",
-      limitReached: "Daily Limit Reached (5/5)"
+      limitReached: "Daily Limit Reached (5/5)",
+      inventory: "Inventory",
+      tradeMarket: "Trade Market",
+      craftWeapons: "Craft Weapons",
+      systemBuying: "System Buying",
+      systemSelling: "System Selling",
+      sellToSystem: "Sell",
+      buyFromSystem: "Buy",
+      craftBtn: "Craft",
+      insufficientResources: "Insufficient resources",
+      insufficientMoney: "Insufficient money",
+      yourResources: "Your Resources",
+      recipe: "Recipe",
+      owned: "Owned",
+      pricePerUnit: "per unit",
+      orderBook: "Order Book",
+      placeOrder: "Place Order",
+      sellOrders: "Sell Offers",
+      buyOrders: "Buy Offers",
+      price: "Price",
+      quantity: "Quantity",
+      total: "Total",
+      system: "SYS",
+      player: "YOU",
+      selectResource: "Resource",
+      cancelOrder: "Cancel",
+      orderExists: "You already have an order for this resource",
+      orderType: "Type",
+      matched: "Order matched!",
+      orderPlaced: "Order placed",
+      fillOrder: "Fill"
+    },
+    weapons: {
+      rifle: "Rifle",
+      tank: "Tank",
+      fighter_jet: "Fighter Jet",
+      bomber: "Bomber",
+      naval_ship: "Naval Ship",
+      drone: "Drone",
+      missile: "Missile"
     },
     quiz_categories: { History: "World History", Economy: "Global Economy", Politics: "International Politics" },
     quiz: {
@@ -152,7 +191,46 @@ export const translations: Record<Language, any> = {
       quizAbandon: "퀴즈 그만하기",
       nextQuiz: "다음 문제 풀기",
       changeSubject: "과목 변경",
-      limitReached: "일일 한도 초과 (5/5)"
+      limitReached: "일일 한도 초과 (5/5)",
+      inventory: "보관함",
+      tradeMarket: "거래소",
+      craftWeapons: "무기 제작",
+      systemBuying: "시스템 매수",
+      systemSelling: "시스템 매도",
+      sellToSystem: "판매",
+      buyFromSystem: "구매",
+      craftBtn: "제작",
+      insufficientResources: "자원 부족",
+      insufficientMoney: "자금 부족",
+      yourResources: "보유 자원",
+      recipe: "레시피",
+      owned: "보유",
+      pricePerUnit: "단가",
+      orderBook: "주문서",
+      placeOrder: "주문",
+      sellOrders: "매도 주문",
+      buyOrders: "매수 주문",
+      price: "가격",
+      quantity: "수량",
+      total: "합계",
+      system: "시스템",
+      player: "나",
+      selectResource: "자원",
+      cancelOrder: "취소",
+      orderExists: "이미 해당 자원에 주문이 있습니다",
+      orderType: "유형",
+      matched: "주문 체결!",
+      orderPlaced: "주문 등록",
+      fillOrder: "체결"
+    },
+    weapons: {
+      rifle: "소총",
+      tank: "전차",
+      fighter_jet: "전투기",
+      bomber: "폭격기",
+      naval_ship: "군함",
+      drone: "드론",
+      missile: "미사일"
     },
     quiz_categories: { History: "세계사", Economy: "세계 경제", Politics: "국제 정치" },
     quiz: {
@@ -213,6 +291,31 @@ export const translations: Record<Language, any> = {
   }
 };
 
+const WEAPON_RECIPES: Record<WeaponType, { iron: number; gold: number; uranium: number; oil: number; money: number }> = {
+  rifle:       { iron: 5,  gold: 2,  uranium: 0, oil: 1,  money: 500 },
+  tank:        { iron: 15, gold: 5,  uranium: 2, oil: 8,  money: 5000 },
+  fighter_jet: { iron: 20, gold: 8,  uranium: 4, oil: 15, money: 12000 },
+  bomber:      { iron: 25, gold: 10, uranium: 6, oil: 20, money: 18000 },
+  naval_ship:  { iron: 30, gold: 12, uranium: 5, oil: 25, money: 25000 },
+  drone:       { iron: 10, gold: 6,  uranium: 3, oil: 5,  money: 8000 },
+  missile:     { iron: 35, gold: 15, uranium: 10, oil: 12, money: 30000 },
+};
+
+const SYSTEM_MARKET_ORDERS: MarketOrder[] = [
+  { id: "sys-buy-gold",    type: "buy",  resource: "gold",    quantity: 50,  pricePerUnit: 180, isSystem: true },
+  { id: "sys-buy-oil",     type: "buy",  resource: "oil",     quantity: 80,  pricePerUnit: 95,  isSystem: true },
+  { id: "sys-buy-iron",    type: "buy",  resource: "iron",    quantity: 100, pricePerUnit: 70,  isSystem: true },
+  { id: "sys-buy-uranium", type: "buy",  resource: "uranium", quantity: 10,  pricePerUnit: 350, isSystem: true },
+  { id: "sys-sell-gold",    type: "sell", resource: "gold",    quantity: 30,  pricePerUnit: 250, isSystem: true },
+  { id: "sys-sell-oil",     type: "sell", resource: "oil",     quantity: 50,  pricePerUnit: 140, isSystem: true },
+  { id: "sys-sell-iron",    type: "sell", resource: "iron",    quantity: 60,  pricePerUnit: 110, isSystem: true },
+  { id: "sys-sell-uranium", type: "sell", resource: "uranium", quantity: 5,   pricePerUnit: 500, isSystem: true },
+];
+
+const initialWeapons: WeaponInventory = {
+  rifle: 0, tank: 0, fighter_jet: 0, bomber: 0, naval_ship: 0, drone: 0, missile: 0,
+};
+
 type GameState = {
   day: number;
   totalTicks: number;
@@ -222,6 +325,8 @@ type GameState = {
   regions: Region[];
   resources: Record<string, number>;
   military: Record<string, number>;
+  weapons: WeaponInventory;
+  marketOrders: MarketOrder[];
   workExperience: WorkExperience;
   laws: { taxRate: number; militaryBudget: number; tradeTariff: number };
   bills: Bill[];
@@ -243,6 +348,10 @@ type GameState = {
   proposeBill: (lawType: LawType) => void;
   voteOnBill: (billId: string, vote: "pro" | "contra") => void;
   winPlayGame: (xp: number, gold: number) => void;
+  placeOrder: (type: "buy" | "sell", resource: string, quantity: number, pricePerUnit: number) => void;
+  fillOrder: (orderId: string, amount: number) => void;
+  cancelOrder: (orderId: string) => void;
+  craftWeapon: (weaponType: WeaponType) => void;
 };
 
 type IndexedRegionKey = "healthIndex" | "militaryIndex" | "educationIndex" | "developmentIndex";
@@ -820,7 +929,7 @@ function generateInitialBills(day: number, region: Region, parties: Party[]): Bi
   });
 }
 
-export { LAW_DEFINITIONS, ALL_LAW_TYPES };
+export { LAW_DEFINITIONS, ALL_LAW_TYPES, WEAPON_RECIPES, SYSTEM_MARKET_ORDERS };
 
 export const useGameStore = create<GameState>((set) => ({
   day: 1,
@@ -831,6 +940,8 @@ export const useGameStore = create<GameState>((set) => ({
   regions: initialRegions,
   resources: { oil: 10, gold: 1000, iron: 22, uranium: 1, food: 25 },
   military: { infantry: 18, tanks: 2, aircraft: 0, navy: 0 },
+  weapons: { ...initialWeapons },
+  marketOrders: [...SYSTEM_MARKET_ORDERS],
   workExperience: initialWorkExperience,
   laws: { taxRate: 12, militaryBudget: 15, tradeTariff: 8 },
   bills: generateInitialBills(1, initialRegions[0], initialParties),
@@ -1353,6 +1464,222 @@ export const useGameStore = create<GameState>((set) => ({
         wars,
         log: withLog(state.log, state.day, `Deployed to help ${side}. Damage added: ${formatNumber(contribution)}.`)
       };
+    }),
+
+  placeOrder: (type, resource, quantity, pricePerUnit) =>
+    set((state) => {
+      const player = { ...state.player };
+      const resources = { ...state.resources };
+      const marketOrders = state.marketOrders.map((o) => ({ ...o }));
+      let log = state.log;
+
+      // Limit: 1 order per resource per direction for player
+      const existingPlayerOrder = marketOrders.find((o) => !o.isSystem && o.type === type && o.resource === resource);
+      if (existingPlayerOrder) return { log: withLog(log, state.day, `You already have a ${type} order for ${resource}. Cancel it first.`) };
+
+      if (quantity <= 0 || pricePerUnit <= 0) return { log: withLog(log, state.day, "Invalid order parameters.") };
+
+      if (type === "buy") {
+        // Player wants to BUY resource — check if any sell offers at or below the buy price
+        const totalCost = quantity * pricePerUnit;
+        if (player.money < totalCost) return { log: withLog(log, state.day, `Need $${formatNumber(totalCost)} to place buy order.`) };
+
+        // Find cheapest sell offers for this resource
+        const sellOffers = marketOrders
+          .filter((o) => o.type === "sell" && o.resource === resource && o.pricePerUnit <= pricePerUnit)
+          .sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+
+        let remaining = quantity;
+        let totalSpent = 0;
+
+        for (const offer of sellOffers) {
+          if (remaining <= 0) break;
+          const fillQty = Math.min(remaining, offer.quantity);
+          const cost = fillQty * offer.pricePerUnit;
+          totalSpent += cost;
+          remaining -= fillQty;
+
+          if (offer.isSystem) {
+            // System orders replenish, don't reduce quantity
+          } else {
+            offer.quantity -= fillQty;
+          }
+        }
+
+        const filled = quantity - remaining;
+        if (filled > 0) {
+          if (player.money < totalSpent) return { log: withLog(log, state.day, `Not enough money for matched trades.`) };
+          player.money -= totalSpent;
+          const stored = addResource(resources, player, resource as keyof typeof resourceStorageWeights, filled);
+          grantXp(player, 10 + filled, state);
+          log = withLog(log, state.day, `Bought ${stored} ${resource} for $${formatNumber(totalSpent)} (matched${stored < filled ? ", storage full" : ""}).`);
+        }
+
+        // If still remaining, create a standing buy order
+        if (remaining > 0) {
+          const reserveCost = remaining * pricePerUnit;
+          if (player.money < reserveCost) {
+            if (filled > 0) {
+              // Remove empty non-system orders
+              const cleanedOrders = marketOrders.filter((o) => o.isSystem || o.quantity > 0);
+              return { player, resources, marketOrders: cleanedOrders, log: withLog(log, state.day, `Partial fill. Not enough money to place remaining ${remaining} qty buy order.`) };
+            }
+            return { log: withLog(log, state.day, "Not enough money.") };
+          }
+          player.money -= reserveCost;
+          marketOrders.push({
+            id: `order-${Date.now().toString().slice(-8)}`,
+            type: "buy",
+            resource,
+            quantity: remaining,
+            pricePerUnit,
+            isSystem: false,
+          });
+          log = withLog(log, state.day, filled > 0
+            ? `Partial fill: ${filled} matched. Placed buy order for ${remaining} ${resource} @ $${pricePerUnit}.`
+            : `Placed buy order: ${remaining} ${resource} @ $${pricePerUnit}. ($${formatNumber(reserveCost)} reserved)`);
+        }
+
+        const cleanedOrders = marketOrders.filter((o) => o.isSystem || o.quantity > 0);
+        return { player, resources, marketOrders: cleanedOrders, log };
+
+      } else {
+        // Player wants to SELL resource
+        const available = resources[resource] ?? 0;
+        if (available < quantity) return { log: withLog(log, state.day, `Not enough ${resource}. Have: ${available}.`) };
+
+        // Find highest buy offers for this resource at or above the sell price
+        const buyOffers = marketOrders
+          .filter((o) => o.type === "buy" && o.resource === resource && o.pricePerUnit >= pricePerUnit)
+          .sort((a, b) => b.pricePerUnit - a.pricePerUnit);
+
+        let remaining = quantity;
+        let totalEarned = 0;
+
+        for (const offer of buyOffers) {
+          if (remaining <= 0) break;
+          const fillQty = Math.min(remaining, offer.quantity);
+          const earned = fillQty * offer.pricePerUnit;
+          totalEarned += earned;
+          remaining -= fillQty;
+
+          if (offer.isSystem) {
+            // System orders replenish
+          } else {
+            offer.quantity -= fillQty;
+          }
+        }
+
+        const filled = quantity - remaining;
+        if (filled > 0) {
+          resources[resource] = (resources[resource] ?? 0) - filled;
+          player.money = clamp(player.money + totalEarned, 0, 999999999);
+          grantXp(player, 10 + filled, state);
+          log = withLog(log, state.day, `Sold ${filled} ${resource} for $${formatNumber(totalEarned)} (matched).`);
+        }
+
+        // If still remaining, create a standing sell order
+        if (remaining > 0) {
+          resources[resource] = (resources[resource] ?? 0) - remaining;
+          marketOrders.push({
+            id: `order-${Date.now().toString().slice(-8)}`,
+            type: "sell",
+            resource,
+            quantity: remaining,
+            pricePerUnit,
+            isSystem: false,
+          });
+          log = withLog(log, state.day, filled > 0
+            ? `Partial fill: ${filled} matched. Listed ${remaining} ${resource} for sale @ $${pricePerUnit}.`
+            : `Listed ${remaining} ${resource} for sale @ $${pricePerUnit}.`);
+        }
+
+        const cleanedOrders = marketOrders.filter((o) => o.isSystem || o.quantity > 0);
+        return { player, resources, marketOrders: cleanedOrders, log };
+      }
+    }),
+
+  fillOrder: (orderId, amount) =>
+    set((state) => {
+      const player = { ...state.player };
+      const resources = { ...state.resources };
+      const marketOrders = state.marketOrders.map((o) => ({ ...o }));
+      const order = marketOrders.find((o) => o.id === orderId);
+      if (!order) return { log: withLog(state.log, state.day, "Order not found.") };
+      const qty = Math.min(amount, order.quantity);
+      if (qty <= 0) return { log: withLog(state.log, state.day, "Invalid quantity.") };
+      const totalCost = qty * order.pricePerUnit;
+
+      if (order.type === "sell") {
+        // Someone is selling, player buys
+        if (player.money < totalCost) return { log: withLog(state.log, state.day, `Need $${formatNumber(totalCost)}.`) };
+        player.money -= totalCost;
+        const stored = addResource(resources, player, order.resource as keyof typeof resourceStorageWeights, qty);
+        if (!order.isSystem) order.quantity -= qty;
+        grantXp(player, 10 + stored, state);
+        const cleanedOrders = marketOrders.filter((o) => o.isSystem || o.quantity > 0);
+        return { player, resources, marketOrders: cleanedOrders, log: withLog(state.log, state.day, `Bought ${stored} ${order.resource} @ $${order.pricePerUnit}/ea.${stored < qty ? " Storage full!" : ""}`) };
+      } else {
+        // Someone is buying, player sells
+        const available = resources[order.resource] ?? 0;
+        const actualQty = Math.min(qty, available);
+        if (actualQty <= 0) return { log: withLog(state.log, state.day, "Not enough resources.") };
+        resources[order.resource] = available - actualQty;
+        const earned = actualQty * order.pricePerUnit;
+        player.money = clamp(player.money + earned, 0, 999999999);
+        if (!order.isSystem) order.quantity -= actualQty;
+        grantXp(player, 10 + actualQty, state);
+        const cleanedOrders = marketOrders.filter((o) => o.isSystem || o.quantity > 0);
+        return { player, resources, marketOrders: cleanedOrders, log: withLog(state.log, state.day, `Sold ${actualQty} ${order.resource} @ $${order.pricePerUnit}/ea for $${formatNumber(earned)}.`) };
+      }
+    }),
+
+  cancelOrder: (orderId) =>
+    set((state) => {
+      const player = { ...state.player };
+      const resources = { ...state.resources };
+      const order = state.marketOrders.find((o) => o.id === orderId);
+      if (!order || order.isSystem) return { log: withLog(state.log, state.day, "Cannot cancel this order.") };
+
+      // Refund: buy orders refund money, sell orders refund resources
+      if (order.type === "buy") {
+        player.money = clamp(player.money + order.quantity * order.pricePerUnit, 0, 999999999);
+      } else {
+        resources[order.resource] = (resources[order.resource] ?? 0) + order.quantity;
+      }
+
+      const marketOrders = state.marketOrders.filter((o) => o.id !== orderId);
+      return { player, resources, marketOrders, log: withLog(state.log, state.day, `Cancelled ${order.type} order for ${order.quantity} ${order.resource}.`) };
+    }),
+
+  craftWeapon: (weaponType) =>
+    set((state) => {
+      const player = { ...state.player };
+      const resources = { ...state.resources };
+      const weapons = { ...state.weapons };
+      const recipe = WEAPON_RECIPES[weaponType];
+      if (!recipe) return { log: withLog(state.log, state.day, "Unknown weapon type.") };
+
+      // Check resources
+      if ((resources.iron ?? 0) < recipe.iron) return { log: withLog(state.log, state.day, `Need ${recipe.iron} iron to craft ${weaponType}.`) };
+      if ((resources.gold ?? 0) < recipe.gold) return { log: withLog(state.log, state.day, `Need ${recipe.gold} gold to craft ${weaponType}.`) };
+      if ((resources.uranium ?? 0) < recipe.uranium) return { log: withLog(state.log, state.day, `Need ${recipe.uranium} uranium to craft ${weaponType}.`) };
+      if ((resources.oil ?? 0) < recipe.oil) return { log: withLog(state.log, state.day, `Need ${recipe.oil} oil to craft ${weaponType}.`) };
+      if (player.money < recipe.money) return { log: withLog(state.log, state.day, `Need $${formatNumber(recipe.money)} to craft ${weaponType}.`) };
+
+      // Consume resources
+      resources.iron = (resources.iron ?? 0) - recipe.iron;
+      resources.gold = (resources.gold ?? 0) - recipe.gold;
+      resources.uranium = (resources.uranium ?? 0) - recipe.uranium;
+      resources.oil = (resources.oil ?? 0) - recipe.oil;
+      player.money -= recipe.money;
+
+      // Produce weapon
+      weapons[weaponType] = (weapons[weaponType] ?? 0) + 1;
+      grantXp(player, 25 + recipe.money / 500, state);
+
+      const weaponLabel = weaponType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      return { player, resources, weapons, log: withLog(state.log, state.day, `Crafted 1x ${weaponLabel}. Total: ${weapons[weaponType]}.`) };
     }),
 
   language: 'en',
