@@ -2018,7 +2018,7 @@ body {
 /* ─── Storage Sub-tabs ─── */
 .storage-subtabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   border: 1px solid rgba(243, 229, 186, 0.18);
   border-radius: 4px;
@@ -2027,11 +2027,11 @@ body {
 }
 
 .storage-subtab {
-  padding: 10px 6px;
-  font-size: 0.72rem;
+  padding: 10px 4px;
+  font-size: 0.65rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: #6b6b5a;
   background: transparent;
   border: none;
@@ -2039,6 +2039,11 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: var(--work-ui-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .storage-subtab:last-child {
@@ -2573,10 +2578,11 @@ body {
 }
 
 .ob-card-top {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
   align-items: center;
   margin-bottom: 6px;
+  gap: 8px;
 }
 
 .ob-card-bottom {
@@ -2620,12 +2626,14 @@ body {
   font-size: 0.74rem;
   font-weight: 700;
   font-family: var(--work-display-font);
+  text-align: right;
 }
 
 .ob-qty {
   color: #aaa;
   font-size: 0.74rem;
   font-family: var(--work-display-font);
+  text-align: right;
 }
 
 .ob-action-row {

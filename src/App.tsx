@@ -580,6 +580,93 @@ function ParliamentBlocRow({ bloc }: { bloc: ParliamentBloc }) {
   );
 }
 
+function parseKMBT(val: string): number | "" {
+  const v = val.replace(/,/g, '').trim().toLowerCase();
+  if (v === "") return "";
+  const last = v[v.length - 1];
+  const numBefore = parseFloat(v.slice(0, -1));
+  const fullFixed = parseFloat(v);
+  
+  if (last === 'k' && !isNaN(numBefore)) return Math.max(0, Math.floor(numBefore * 1e3));
+  if (last === 'm' && !isNaN(numBefore)) return Math.max(0, Math.floor(numBefore * 1e6));
+  if (last === 'b' && !isNaN(numBefore)) return Math.max(0, Math.floor(numBefore * 1e9));
+  if (last === 't' && !isNaN(numBefore)) return Math.max(0, Math.floor(numBefore * 1e12));
+  if (!isNaN(fullFixed)) return Math.max(0, fullFixed);
+  return "";
+}
+
+interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'min' | 'max'> {
+  numValue: number | "";
+  onNumChange: (val: number | "") => void;
+  min?: number;
+  max?: number;
+}
+
+function NumberInput({ numValue, onNumChange, min, max, ...props }: NumberInputProps) {
+  const [localStr, setLocalStr] = useState(numValue.toString());
+  
+  useEffect(() => {
+    setLocalStr(numValue.toString());
+  }, [numValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const lower = raw.trim().toLowerCase();
+    const last = lower[lower.length - 1];
+    
+    // Check if it ends in KMBT
+    if (['k', 'm', 'b', 't'].includes(last)) {
+       const parsed = parseKMBT(raw);
+       if (parsed !== "") {
+          let finalVal = parsed;
+          if (min !== undefined && finalVal < min) finalVal = min;
+          if (max !== undefined && finalVal > max) finalVal = max;
+          onNumChange(finalVal);
+          return;
+       }
+    }
+    
+    setLocalStr(raw);
+    
+    // Broadcast numbers dynamically if they are straightforward
+    if (/^-?\d*\.?\d*$/.test(raw)) {
+       if (raw === "") {
+         onNumChange("");
+       } else {
+         const val = parseFloat(raw);
+         if (!isNaN(val)) onNumChange(val);
+       }
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let parsed = parseKMBT(localStr);
+    if (parsed !== "") {
+      let finalVal = parsed;
+      if (min !== undefined && finalVal < min) finalVal = min;
+      if (max !== undefined && finalVal > max) finalVal = max;
+      onNumChange(finalVal);
+      setLocalStr(finalVal.toString());
+    } else {
+      let finalVal: number | "" = min !== undefined ? min : "";
+      onNumChange(finalVal);
+      setLocalStr(finalVal.toString());
+    }
+    if (props.onBlur) props.onBlur(e);
+  };
+
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      value={localStr}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      {...props}
+    />
+  );
+}
+
 function BattleWindow({ war, onClose }: { war: WarConflict; onClose: () => void }) {
   const { military, player, action, sendTroops, language } = useGameStore();
   const t = translations[language];
@@ -681,28 +768,28 @@ function BattleWindow({ war, onClose }: { war: WarConflict; onClose: () => void 
                   <Icon name="infantry" className="me-unit-icon" />
                   <span>Kits: {military.infantry}</span>
                 </div>
-                <input type="number" value={ammoKits} min={0} max={military.infantry} onChange={e => setAmmoKits(Number(e.target.value))} />
+                <NumberInput numValue={ammoKits} min={0} max={military.infantry} onNumChange={val => setAmmoKits(Number(val) || 0)} />
               </div>
               <div className="me-battle-unit-input">
                 <div className="me-unit-label">
                   <Icon name="tank" className="me-unit-icon" />
                   <span>Tanks: {military.tanks}</span>
                 </div>
-                <input type="number" value={ammoTanks} min={0} max={military.tanks} onChange={e => setAmmoTanks(Number(e.target.value))} />
+                <NumberInput numValue={ammoTanks} min={0} max={military.tanks} onNumChange={val => setAmmoTanks(Number(val) || 0)} />
               </div>
               <div className="me-battle-unit-input">
                 <div className="me-unit-label">
                   <Icon name="aircraft" className="me-unit-icon" />
                   <span>Air: {military.aircraft}</span>
                 </div>
-                <input type="number" value={ammoAir} min={0} max={military.aircraft} onChange={e => setAmmoAir(Number(e.target.value))} />
+                <NumberInput numValue={ammoAir} min={0} max={military.aircraft} onNumChange={val => setAmmoAir(Number(val) || 0)} />
               </div>
               <div className="me-battle-unit-input">
                 <div className="me-unit-label">
                   <Icon name="ship" className="me-unit-icon" />
                   <span>Navy: {military.navy}</span>
                 </div>
-                <input type="number" value={ammoNavy} min={0} max={military.navy} onChange={e => setAmmoNavy(Number(e.target.value))} />
+                <NumberInput numValue={ammoNavy} min={0} max={military.navy} onNumChange={val => setAmmoNavy(Number(val) || 0)} />
               </div>
             </div>
 
@@ -903,6 +990,7 @@ export default function App() {
   const [orderFormQty, setOrderFormQty] = useState<number | "">(1);
   const [orderFormPrice, setOrderFormPrice] = useState<number | "">(200);
   const [selectedWeapon, setSelectedWeapon] = useState<WeaponType>("rifle");
+  const [craftQuantity, setCraftQuantity] = useState<number | "">(1);
   const [selectedWar, setSelectedWar] = useState<WarConflict | null>(null);
   const [isTrainingOpen, setIsTrainingOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
@@ -1740,24 +1828,20 @@ export default function App() {
                       </div>
                       <div className="order-form-field">
                         <label>{t.ui.quantity}</label>
-                        <input
-                          type="number"
+                        <NumberInput
                           className="order-form-input"
                           min={1}
-                          value={orderFormQty}
-                          onChange={(e) => setOrderFormQty(e.target.value === "" ? "" : Math.max(1, Number(e.target.value)))}
-                          onBlur={() => { if (orderFormQty === "") setOrderFormQty(1); }}
+                          numValue={orderFormQty}
+                          onNumChange={(val) => setOrderFormQty(val)}
                         />
                       </div>
                       <div className="order-form-field">
                         <label>{t.ui.price}</label>
-                        <input
-                          type="number"
+                        <NumberInput
                           className="order-form-input"
                           min={1}
-                          value={orderFormPrice}
-                          onChange={(e) => setOrderFormPrice(e.target.value === "" ? "" : Math.max(1, Number(e.target.value)))}
-                          onBlur={() => { if (orderFormPrice === "") setOrderFormPrice(1); }}
+                          numValue={orderFormPrice}
+                          onNumChange={(val) => setOrderFormPrice(val)}
                         />
                       </div>
                     </div>
@@ -1794,12 +1878,11 @@ export default function App() {
                               <div className="ob-card-bottom">
                                 {order.isSystem || !order.isSystem ? (
                                   <div className="ob-action-row">
-                                    <input
-                                      type="number"
+                                    <NumberInput
                                       className="ob-input"
                                       min={1}
-                                      value={amt}
-                                      onChange={(e) => setTradeAmounts(prev => ({ ...prev, [order.id]: e.target.value === "" ? 1 : Math.max(1, Number(e.target.value)) }))}
+                                      numValue={amt}
+                                      onNumChange={(val) => setTradeAmounts(prev => ({ ...prev, [order.id]: val === "" ? 1 : val }))}
                                     />
                                     <button type="button" className="ob-fill-btn buy-btn" onClick={() => fillOrder(order.id, amt)} disabled={player.money < amt * order.pricePerUnit}>
                                       {t.ui.buyFromSystem}
@@ -1837,12 +1920,11 @@ export default function App() {
                               </div>
                               <div className="ob-card-bottom">
                                 <div className="ob-action-row">
-                                  <input
-                                    type="number"
+                                  <NumberInput
                                     className="ob-input"
                                     min={1}
-                                    value={amt}
-                                    onChange={(e) => setTradeAmounts(prev => ({ ...prev, [order.id]: e.target.value === "" ? 1 : Math.max(1, Number(e.target.value)) }))}
+                                    numValue={amt}
+                                    onNumChange={(val) => setTradeAmounts(prev => ({ ...prev, [order.id]: val === "" ? 1 : val }))}
                                   />
                                   <button type="button" className="ob-fill-btn sell-btn" onClick={() => fillOrder(order.id, amt)} disabled={available <= 0}>
                                     {t.ui.sellToSystem}
@@ -1877,24 +1959,45 @@ export default function App() {
 
                   <section className="craft-section">
                     <div className="cr-selector">
-                      <label>{t.ui.selectResource}</label>
-                      <select className="order-form-select" value={selectedWeapon} onChange={(e) => setSelectedWeapon(e.target.value as WeaponType)}>
-                        {(Object.keys(WEAPON_RECIPES) as WeaponType[]).map((wType) => (
-                          <option key={wType} value={wType}>
-                            {(t.weapons as any)[wType] ?? wType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="order-form-grid">
+                        <div className="order-form-field">
+                          <label>{t.ui.selectResource}</label>
+                          <select className="order-form-select" value={selectedWeapon} onChange={(e) => setSelectedWeapon(e.target.value as WeaponType)}>
+                            {(Object.keys(WEAPON_RECIPES) as WeaponType[]).map((wType) => (
+                              <option key={wType} value={wType}>
+                                {(t.weapons as any)[wType] ?? wType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="order-form-field">
+                          <label>{t.ui.quantity}</label>
+                          <NumberInput
+                            className="order-form-input"
+                            min={1}
+                            numValue={craftQuantity}
+                            onNumChange={(val) => setCraftQuantity(val)}
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {(() => {
                       const recipe = WEAPON_RECIPES[selectedWeapon];
+                      const amt = Number(craftQuantity) || 1;
+                      const reqIron = recipe.iron * amt;
+                      const reqGold = recipe.gold * amt;
+                      const reqUranium = recipe.uranium * amt;
+                      const reqOil = recipe.oil * amt;
+                      const reqMoney = recipe.money * amt;
+
                       const canCraft =
-                        (resources.iron ?? 0) >= recipe.iron &&
-                        (resources.gold ?? 0) >= recipe.gold &&
-                        (resources.uranium ?? 0) >= recipe.uranium &&
-                        (resources.oil ?? 0) >= recipe.oil &&
-                        player.money >= recipe.money;
+                        (resources.iron ?? 0) >= reqIron &&
+                        (resources.gold ?? 0) >= reqGold &&
+                        (resources.uranium ?? 0) >= reqUranium &&
+                        (resources.oil ?? 0) >= reqOil &&
+                        player.money >= reqMoney;
+                        
                       const weaponLabel = (t.weapons as any)[selectedWeapon] ?? selectedWeapon.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
                       
                       return (
@@ -1904,19 +2007,19 @@ export default function App() {
                             <span className="craft-owned-badge">{t.ui.owned}: {weapons[selectedWeapon]}</span>
                           </div>
                           <div className="craft-recipe-costs">
-                            <span className={`craft-cost-item${(resources.iron ?? 0) < recipe.iron ? ' deficit' : ''}`}>🪨 Iron: {recipe.iron} {(resources.iron ?? 0) < recipe.iron ? `(${resources.iron ?? 0}/${recipe.iron})` : ''}</span>
-                            <span className={`craft-cost-item${(resources.gold ?? 0) < recipe.gold ? ' deficit' : ''}`}>🥇 Gold: {recipe.gold} {(resources.gold ?? 0) < recipe.gold ? `(${resources.gold ?? 0}/${recipe.gold})` : ''}</span>
-                            {recipe.uranium > 0 && <span className={`craft-cost-item${(resources.uranium ?? 0) < recipe.uranium ? ' deficit' : ''}`}>☢ Uranium: {recipe.uranium} {(resources.uranium ?? 0) < recipe.uranium ? `(${resources.uranium ?? 0}/${recipe.uranium})` : ''}</span>}
-                            {recipe.oil > 0 && <span className={`craft-cost-item${(resources.oil ?? 0) < recipe.oil ? ' deficit' : ''}`}>🛢 Oil: {recipe.oil} {(resources.oil ?? 0) < recipe.oil ? `(${resources.oil ?? 0}/${recipe.oil})` : ''}</span>}
-                            <span className={`craft-cost-item money${player.money < recipe.money ? ' deficit' : ''}`}>💰 ${formatNumber(recipe.money)} {player.money < recipe.money ? `($${formatNumber(player.money)}/$${formatNumber(recipe.money)})` : ''}</span>
+                            <span className={`craft-cost-item${(resources.iron ?? 0) < reqIron ? ' deficit' : ''}`}>🪨 Iron: {reqIron} {(resources.iron ?? 0) < reqIron ? `(${resources.iron ?? 0}/${reqIron})` : ''}</span>
+                            <span className={`craft-cost-item${(resources.gold ?? 0) < reqGold ? ' deficit' : ''}`}>🥇 Gold: {reqGold} {(resources.gold ?? 0) < reqGold ? `(${resources.gold ?? 0}/${reqGold})` : ''}</span>
+                            {recipe.uranium > 0 && <span className={`craft-cost-item${(resources.uranium ?? 0) < reqUranium ? ' deficit' : ''}`}>☢ Uranium: {reqUranium} {(resources.uranium ?? 0) < reqUranium ? `(${resources.uranium ?? 0}/${reqUranium})` : ''}</span>}
+                            {recipe.oil > 0 && <span className={`craft-cost-item${(resources.oil ?? 0) < reqOil ? ' deficit' : ''}`}>🛢 Oil: {reqOil} {(resources.oil ?? 0) < reqOil ? `(${resources.oil ?? 0}/${reqOil})` : ''}</span>}
+                            <span className={`craft-cost-item money${player.money < reqMoney ? ' deficit' : ''}`}>💰 ${formatNumber(reqMoney)} {player.money < reqMoney ? `($${formatNumber(player.money)}/$${formatNumber(reqMoney)})` : ''}</span>
                           </div>
                           <button
                             type="button"
                             className="craft-btn"
                             disabled={!canCraft}
-                            onClick={() => craftWeapon(selectedWeapon)}
+                            onClick={() => craftWeapon(selectedWeapon, amt)}
                           >
-                            {canCraft ? t.ui.craftBtn : t.ui.insufficientResources}
+                            {canCraft ? `${t.ui.craftBtn} ${amt} ${weaponLabel}` : t.ui.insufficientResources}
                           </button>
                         </article>
                       );

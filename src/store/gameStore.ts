@@ -351,7 +351,7 @@ type GameState = {
   placeOrder: (type: "buy" | "sell", resource: string, quantity: number, pricePerUnit: number) => void;
   fillOrder: (orderId: string, amount: number) => void;
   cancelOrder: (orderId: string) => void;
-  craftWeapon: (weaponType: WeaponType) => void;
+  craftWeapon: (weaponType: WeaponType, amount: number) => void;
 };
 
 type IndexedRegionKey = "healthIndex" | "militaryIndex" | "educationIndex" | "developmentIndex";
@@ -1652,34 +1652,40 @@ export const useGameStore = create<GameState>((set) => ({
       return { player, resources, marketOrders, log: withLog(state.log, state.day, `Cancelled ${order.type} order for ${order.quantity} ${order.resource}.`) };
     }),
 
-  craftWeapon: (weaponType) =>
+  craftWeapon: (weaponType, amount) =>
     set((state) => {
       const player = { ...state.player };
       const resources = { ...state.resources };
       const weapons = { ...state.weapons };
       const recipe = WEAPON_RECIPES[weaponType];
       if (!recipe) return { log: withLog(state.log, state.day, "Unknown weapon type.") };
+      
+      const reqIron = recipe.iron * amount;
+      const reqGold = recipe.gold * amount;
+      const reqUranium = recipe.uranium * amount;
+      const reqOil = recipe.oil * amount;
+      const reqMoney = recipe.money * amount;
 
       // Check resources
-      if ((resources.iron ?? 0) < recipe.iron) return { log: withLog(state.log, state.day, `Need ${recipe.iron} iron to craft ${weaponType}.`) };
-      if ((resources.gold ?? 0) < recipe.gold) return { log: withLog(state.log, state.day, `Need ${recipe.gold} gold to craft ${weaponType}.`) };
-      if ((resources.uranium ?? 0) < recipe.uranium) return { log: withLog(state.log, state.day, `Need ${recipe.uranium} uranium to craft ${weaponType}.`) };
-      if ((resources.oil ?? 0) < recipe.oil) return { log: withLog(state.log, state.day, `Need ${recipe.oil} oil to craft ${weaponType}.`) };
-      if (player.money < recipe.money) return { log: withLog(state.log, state.day, `Need $${formatNumber(recipe.money)} to craft ${weaponType}.`) };
+      if ((resources.iron ?? 0) < reqIron) return { log: withLog(state.log, state.day, `Need ${reqIron} iron to craft ${amount} ${weaponType}.`) };
+      if ((resources.gold ?? 0) < reqGold) return { log: withLog(state.log, state.day, `Need ${reqGold} gold to craft ${amount} ${weaponType}.`) };
+      if ((resources.uranium ?? 0) < reqUranium) return { log: withLog(state.log, state.day, `Need ${reqUranium} uranium to craft ${amount} ${weaponType}.`) };
+      if ((resources.oil ?? 0) < reqOil) return { log: withLog(state.log, state.day, `Need ${reqOil} oil to craft ${amount} ${weaponType}.`) };
+      if (player.money < reqMoney) return { log: withLog(state.log, state.day, `Need $${formatNumber(reqMoney)} to craft ${amount} ${weaponType}.`) };
 
       // Consume resources
-      resources.iron = (resources.iron ?? 0) - recipe.iron;
-      resources.gold = (resources.gold ?? 0) - recipe.gold;
-      resources.uranium = (resources.uranium ?? 0) - recipe.uranium;
-      resources.oil = (resources.oil ?? 0) - recipe.oil;
-      player.money -= recipe.money;
+      resources.iron = (resources.iron ?? 0) - reqIron;
+      resources.gold = (resources.gold ?? 0) - reqGold;
+      resources.uranium = (resources.uranium ?? 0) - reqUranium;
+      resources.oil = (resources.oil ?? 0) - reqOil;
+      player.money -= reqMoney;
 
       // Produce weapon
-      weapons[weaponType] = (weapons[weaponType] ?? 0) + 1;
-      grantXp(player, 25 + recipe.money / 500, state);
+      weapons[weaponType] = (weapons[weaponType] ?? 0) + amount;
+      grantXp(player, (25 + recipe.money / 500) * amount, state);
 
       const weaponLabel = weaponType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-      return { player, resources, weapons, log: withLog(state.log, state.day, `Crafted 1x ${weaponLabel}. Total: ${weapons[weaponType]}.`) };
+      return { player, resources, weapons, log: withLog(state.log, state.day, `Crafted ${amount}x ${weaponLabel}. Total: ${weapons[weaponType]}.`) };
     }),
 
   language: 'en',
