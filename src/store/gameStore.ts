@@ -302,14 +302,14 @@ const WEAPON_RECIPES: Record<WeaponType, { iron: number; gold: number; uranium: 
 };
 
 const SYSTEM_MARKET_ORDERS: MarketOrder[] = [
-  { id: "sys-buy-gold",    type: "buy",  resource: "gold",    quantity: 50,  pricePerUnit: 180, isSystem: true },
-  { id: "sys-buy-oil",     type: "buy",  resource: "oil",     quantity: 80,  pricePerUnit: 95,  isSystem: true },
-  { id: "sys-buy-iron",    type: "buy",  resource: "iron",    quantity: 100, pricePerUnit: 70,  isSystem: true },
-  { id: "sys-buy-uranium", type: "buy",  resource: "uranium", quantity: 10,  pricePerUnit: 350, isSystem: true },
-  { id: "sys-sell-gold",    type: "sell", resource: "gold",    quantity: 30,  pricePerUnit: 250, isSystem: true },
-  { id: "sys-sell-oil",     type: "sell", resource: "oil",     quantity: 50,  pricePerUnit: 140, isSystem: true },
-  { id: "sys-sell-iron",    type: "sell", resource: "iron",    quantity: 60,  pricePerUnit: 110, isSystem: true },
-  { id: "sys-sell-uranium", type: "sell", resource: "uranium", quantity: 5,   pricePerUnit: 500, isSystem: true },
+  { id: "sys-buy-gold",    type: "buy",  resource: "gold",    quantity: 50,  pricePerUnit: 180, isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-buy-oil",     type: "buy",  resource: "oil",     quantity: 80,  pricePerUnit: 95,  isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-buy-iron",    type: "buy",  resource: "iron",    quantity: 100, pricePerUnit: 70,  isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-buy-uranium", type: "buy",  resource: "uranium", quantity: 10,  pricePerUnit: 350, isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-sell-gold",    type: "sell", resource: "gold",    quantity: 30,  pricePerUnit: 250, isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-sell-oil",     type: "sell", resource: "oil",     quantity: 50,  pricePerUnit: 140, isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-sell-iron",    type: "sell", resource: "iron",    quantity: 60,  pricePerUnit: 110, isSystem: true, creatorName: "SYSTEM" },
+  { id: "sys-sell-uranium", type: "sell", resource: "uranium", quantity: 5,   pricePerUnit: 500, isSystem: true, creatorName: "SYSTEM" },
 ];
 
 const initialWeapons: WeaponInventory = {
@@ -411,6 +411,7 @@ const departmentPlans: Record<
 };
 
 const initialPlayer: Player = {
+  name: "Alex River",
   role: "Citizen",
   level: 1,
   xp: 0,
@@ -1534,6 +1535,7 @@ export const useGameStore = create<GameState>((set) => ({
             quantity: remaining,
             pricePerUnit,
             isSystem: false,
+            creatorName: player.name,
           });
           log = withLog(log, state.day, filled > 0
             ? `Partial fill: ${filled} matched. Placed buy order for ${remaining} ${resource} @ $${pricePerUnit}.`
@@ -1588,6 +1590,7 @@ export const useGameStore = create<GameState>((set) => ({
             quantity: remaining,
             pricePerUnit,
             isSystem: false,
+            creatorName: player.name,
           });
           log = withLog(log, state.day, filled > 0
             ? `Partial fill: ${filled} matched. Listed ${remaining} ${resource} for sale @ $${pricePerUnit}.`

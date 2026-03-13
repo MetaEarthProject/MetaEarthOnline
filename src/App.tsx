@@ -1443,7 +1443,8 @@ export default function App() {
     "phone-screen",
     isWorkTab ? "work-shell" : "",
     isWarsTab ? "wars-shell" : "",
-    isParliamentTab ? "parliament-shell" : ""
+    isParliamentTab ? "parliament-shell" : "",
+    isStorageTab ? "storage-shell" : ""
   ]
     .filter(Boolean)
     .join(" ");
@@ -1782,16 +1783,16 @@ export default function App() {
 
               {/* ── TRADE TAB ── */}
               {storageSubPage === "trade" && (
-                <>
+                <div className="trade-page-content">
                   {/* Player resources strip */}
                   <section className="trade-resources-strip">
                     <h3>{t.ui.yourResources}</h3>
                     <div className="trade-resources-row">
-                      <div className="trade-res-chip"><span>Gold</span><strong>{resources.gold ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Oil</span><strong>{resources.oil ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Iron</span><strong>{resources.iron ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Uranium</span><strong>{resources.uranium ?? 0}</strong></div>
-                      <div className="trade-res-chip money"><span>$</span><strong>{formatNumber(player.money)}</strong></div>
+                      <div className="trade-res-chip money"><span>BALANCE</span><strong>${formatNumber(player.money)}</strong></div>
+                      <div className="trade-res-chip"><span>GOLD</span><strong>{resources.gold ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>OIL</span><strong>{resources.oil ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>IRON</span><strong>{resources.iron ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>URANIUM</span><strong>{resources.uranium ?? 0}</strong></div>
                     </div>
                   </section>
 
@@ -1853,13 +1854,13 @@ export default function App() {
                       className={`order-form-submit ${orderFormType}`}
                       onClick={() => placeOrder(orderFormType, orderFormResource, Number(orderFormQty) || 1, Number(orderFormPrice) || 1)}
                     >
-                      {t.ui.placeOrder}: {orderFormType === "buy" ? t.ui.buyFromSystem : t.ui.sellToSystem} {orderFormQty || 1} {(t.resources as any)[orderFormResource] ?? orderFormResource} @ ${formatNumber(Number(orderFormPrice) || 1)}
+                      {orderFormType === "buy" ? "SUBMIT BUY" : "SUBMIT SELL"} ORDER
                     </button>
                   </section>
 
-                  {/* ── Sell Offers (ascending price) ── */}
+                  {/* ── Sell Offers ── */}
                   <section className="trade-section">
-                    <h3 className="trade-section-title sell-title">⬆ {t.ui.sellOrders}</h3>
+                    <h3 className="trade-section-title sell-title"><span>🛒</span> {t.ui.sellOrders}</h3>
                     <div className="order-book-list">
                       {[...marketOrders]
                         .filter(o => o.type === "sell")
@@ -1868,30 +1869,43 @@ export default function App() {
                           const amt = tradeAmounts[order.id] ?? 1;
                           return (
                             <div key={order.id} className={`ob-card sell${order.isSystem ? " system" : ""}`}>
-                              <div className="ob-card-top">
-                                <span className="ob-resource">{(t.resources as any)[order.resource] ?? order.resource}
-                                  {order.isSystem ? <small className="ob-tag sys">SYS</small> : <small className="ob-tag player">YOU</small>}
-                                </span>
-                                <span className="ob-price">${formatNumber(order.pricePerUnit)}</span>
-                                <span className="ob-qty">{order.isSystem ? "∞" : order.quantity}</span>
+                              <div className="ob-info-block">
+                                <div className="ob-resource-row">
+                                  <span className="ob-resource-name">{(t.resources as any)[order.resource] ?? order.resource}</span>
+                                  {order.isSystem ? (
+                                    <small className="ob-tag sys">SYSTEM</small>
+                                  ) : (
+                                    <small className="ob-tag player">{order.creatorName === player.name ? "YOU" : order.creatorName || "LOCAL"}</small>
+                                  )}
+                                </div>
+                                <div className="ob-details-row">
+                                  <span>STOCK: {order.isSystem ? "∞" : order.quantity}</span>
+                                </div>
+                                <div className="ob-price-block">
+                                  <span className="ob-price-val">${formatNumber(order.pricePerUnit)}</span>
+                                  <span className="ob-price-sub">/ UNIT</span>
+                                </div>
                               </div>
-                              <div className="ob-card-bottom">
-                                {order.isSystem || !order.isSystem ? (
-                                  <div className="ob-action-row">
-                                    <NumberInput
-                                      className="ob-input"
-                                      min={1}
-                                      numValue={amt}
-                                      onNumChange={(val) => setTradeAmounts(prev => ({ ...prev, [order.id]: val === "" ? 1 : val }))}
-                                    />
-                                    <button type="button" className="ob-fill-btn buy-btn" onClick={() => fillOrder(order.id, amt)} disabled={player.money < amt * order.pricePerUnit}>
-                                      {t.ui.buyFromSystem}
-                                    </button>
-                                    {!order.isSystem && (
-                                      <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
-                                    )}
-                                  </div>
-                                ) : null}
+                              <div className="ob-action-sidebar">
+                                <div className="ob-input-group">
+                                  <NumberInput
+                                    className="ob-input"
+                                    min={1}
+                                    numValue={amt}
+                                    onNumChange={(val) => setTradeAmounts(prev => ({ ...prev, [order.id]: val === "" ? 1 : val }))}
+                                  />
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="ob-btn sell" 
+                                  onClick={() => fillOrder(order.id, amt)} 
+                                  disabled={player.money < (Number(amt) || 1) * order.pricePerUnit}
+                                >
+                                  {t.ui.buyFromSystem}
+                                </button>
+                                {!order.isSystem && (
+                                  <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
+                                )}
                               </div>
                             </div>
                           );
@@ -1899,9 +1913,9 @@ export default function App() {
                     </div>
                   </section>
 
-                  {/* ── Buy Offers (descending price) ── */}
+                  {/* ── Buy Offers ── */}
                   <section className="trade-section">
-                    <h3 className="trade-section-title buy-title">⬇ {t.ui.buyOrders}</h3>
+                    <h3 className="trade-section-title buy-title"><span>💰</span> {t.ui.buyOrders}</h3>
                     <div className="order-book-list">
                       {[...marketOrders]
                         .filter(o => o.type === "buy")
@@ -1911,77 +1925,69 @@ export default function App() {
                           const available = resources[order.resource] ?? 0;
                           return (
                             <div key={order.id} className={`ob-card buy${order.isSystem ? " system" : ""}`}>
-                              <div className="ob-card-top">
-                                <span className="ob-resource">{(t.resources as any)[order.resource] ?? order.resource}
-                                  {order.isSystem ? <small className="ob-tag sys">SYS</small> : <small className="ob-tag player">YOU</small>}
-                                </span>
-                                <span className="ob-price">${formatNumber(order.pricePerUnit)}</span>
-                                <span className="ob-qty">{order.isSystem ? "∞" : order.quantity}</span>
+                              <div className="ob-info-block">
+                                <div className="ob-resource-row">
+                                  <span className="ob-resource-name">{(t.resources as any)[order.resource] ?? order.resource}</span>
+                                  {order.isSystem ? (
+                                    <small className="ob-tag sys">SYSTEM</small>
+                                  ) : (
+                                    <small className="ob-tag player">{order.creatorName === player.name ? "YOU" : order.creatorName || "LOCAL"}</small>
+                                  )}
+                                </div>
+                                <div className="ob-details-row">
+                                  <span>DEMAND: {order.isSystem ? "∞" : order.quantity}</span>
+                                </div>
+                                <div className="ob-price-block">
+                                  <span className="ob-price-val">${formatNumber(order.pricePerUnit)}</span>
+                                  <span className="ob-price-sub">/ UNIT</span>
+                                </div>
                               </div>
-                              <div className="ob-card-bottom">
-                                <div className="ob-action-row">
+                              <div className="ob-action-sidebar">
+                                <div className="ob-input-group">
                                   <NumberInput
                                     className="ob-input"
                                     min={1}
                                     numValue={amt}
                                     onNumChange={(val) => setTradeAmounts(prev => ({ ...prev, [order.id]: val === "" ? 1 : val }))}
                                   />
-                                  <button type="button" className="ob-fill-btn sell-btn" onClick={() => fillOrder(order.id, amt)} disabled={available <= 0}>
-                                    {t.ui.sellToSystem}
-                                  </button>
-                                  {!order.isSystem && (
-                                    <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
-                                  )}
                                 </div>
+                                <button 
+                                  type="button" 
+                                  className="ob-btn buy" 
+                                  onClick={() => fillOrder(order.id, amt)} 
+                                  disabled={available < (Number(amt) || 1)}
+                                >
+                                  {t.ui.sellToSystem}
+                                </button>
+                                {!order.isSystem && (
+                                  <button type="button" className="ob-cancel-btn" onClick={() => cancelOrder(order.id)}>{t.ui.cancelOrder}</button>
+                                )}
                               </div>
                             </div>
                           );
                         })}
                     </div>
                   </section>
-                </>
-              )}
+                </div>
+              )
+}
 
               {/* ── CRAFT TAB ── */}
               {storageSubPage === "craft" && (
-                <>
+                <div className="craft-page-content">
                   {/* Player resources strip */}
                   <section className="trade-resources-strip">
                     <h3>{t.ui.yourResources}</h3>
                     <div className="trade-resources-row">
-                      <div className="trade-res-chip"><span>Gold</span><strong>{resources.gold ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Oil</span><strong>{resources.oil ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Iron</span><strong>{resources.iron ?? 0}</strong></div>
-                      <div className="trade-res-chip"><span>Uranium</span><strong>{resources.uranium ?? 0}</strong></div>
-                      <div className="trade-res-chip money"><span>$</span><strong>{formatNumber(player.money)}</strong></div>
+                      <div className="trade-res-chip money"><span>BALANCE</span><strong>${formatNumber(player.money)}</strong></div>
+                      <div className="trade-res-chip"><span>GOLD</span><strong>{resources.gold ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>OIL</span><strong>{resources.oil ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>IRON</span><strong>{resources.iron ?? 0}</strong></div>
+                      <div className="trade-res-chip"><span>URANIUM</span><strong>{resources.uranium ?? 0}</strong></div>
                     </div>
                   </section>
 
                   <section className="craft-section">
-                    <div className="cr-selector">
-                      <div className="order-form-grid">
-                        <div className="order-form-field">
-                          <label>{t.ui.selectResource}</label>
-                          <select className="order-form-select" value={selectedWeapon} onChange={(e) => setSelectedWeapon(e.target.value as WeaponType)}>
-                            {(Object.keys(WEAPON_RECIPES) as WeaponType[]).map((wType) => (
-                              <option key={wType} value={wType}>
-                                {(t.weapons as any)[wType] ?? wType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="order-form-field">
-                          <label>{t.ui.quantity}</label>
-                          <NumberInput
-                            className="order-form-input"
-                            min={1}
-                            numValue={craftQuantity}
-                            onNumChange={(val) => setCraftQuantity(val)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
                     {(() => {
                       const recipe = WEAPON_RECIPES[selectedWeapon];
                       const amt = Number(craftQuantity) || 1;
@@ -2001,32 +2007,84 @@ export default function App() {
                       const weaponLabel = (t.weapons as any)[selectedWeapon] ?? selectedWeapon.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
                       
                       return (
-                        <article className={`craft-recipe-card${canCraft ? "" : " disabled"}`}>
-                          <div className="craft-recipe-header">
-                            <strong className="craft-weapon-name">{weaponLabel}</strong>
+                        <div className="craft-blueprint">
+                          <div className="craft-header">
+                            <div className="craft-title-group">
+                              <h2>{weaponLabel}</h2>
+                              <p>{t.ui.productionBlueprint}</p>
+                            </div>
                             <span className="craft-owned-badge">{t.ui.owned}: {weapons[selectedWeapon]}</span>
                           </div>
-                          <div className="craft-recipe-costs">
-                            <span className={`craft-cost-item${(resources.iron ?? 0) < reqIron ? ' deficit' : ''}`}>🪨 Iron: {reqIron} {(resources.iron ?? 0) < reqIron ? `(${resources.iron ?? 0}/${reqIron})` : ''}</span>
-                            <span className={`craft-cost-item${(resources.gold ?? 0) < reqGold ? ' deficit' : ''}`}>🥇 Gold: {reqGold} {(resources.gold ?? 0) < reqGold ? `(${resources.gold ?? 0}/${reqGold})` : ''}</span>
-                            {recipe.uranium > 0 && <span className={`craft-cost-item${(resources.uranium ?? 0) < reqUranium ? ' deficit' : ''}`}>☢ Uranium: {reqUranium} {(resources.uranium ?? 0) < reqUranium ? `(${resources.uranium ?? 0}/${reqUranium})` : ''}</span>}
-                            {recipe.oil > 0 && <span className={`craft-cost-item${(resources.oil ?? 0) < reqOil ? ' deficit' : ''}`}>🛢 Oil: {reqOil} {(resources.oil ?? 0) < reqOil ? `(${resources.oil ?? 0}/${reqOil})` : ''}</span>}
-                            <span className={`craft-cost-item money${player.money < reqMoney ? ' deficit' : ''}`}>💰 ${formatNumber(reqMoney)} {player.money < reqMoney ? `($${formatNumber(player.money)}/$${formatNumber(reqMoney)})` : ''}</span>
+
+                          <div className="order-form-grid">
+                            <div className="order-form-field">
+                              <label>{t.ui.selectResource}</label>
+                              <select className="order-form-select" value={selectedWeapon} onChange={(e) => setSelectedWeapon(e.target.value as WeaponType)}>
+                                {(Object.keys(WEAPON_RECIPES) as WeaponType[]).map((wType) => (
+                                  <option key={wType} value={wType}>
+                                    {(t.weapons as any)[wType] ?? wType.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="order-form-field">
+                              <label>{t.ui.quantity}</label>
+                              <NumberInput
+                                className="order-form-input"
+                                min={1}
+                                numValue={craftQuantity}
+                                onNumChange={(val) => setCraftQuantity(val)}
+                              />
+                            </div>
                           </div>
-                          <button
-                            type="button"
-                            className="craft-btn"
-                            disabled={!canCraft}
-                            onClick={() => craftWeapon(selectedWeapon, amt)}
-                          >
-                            {canCraft ? `${t.ui.craftBtn} ${amt} ${weaponLabel}` : t.ui.insufficientResources}
-                          </button>
-                        </article>
+
+                          <div className="craft-recipe-grid">
+                            <div className={`craft-ingredient${(resources.iron ?? 0) < reqIron ? ' deficit' : ''}`}>
+                              <span>IRON</span>
+                              <strong>{formatNumber(reqIron)}</strong>
+                            </div>
+                            <div className={`craft-ingredient${(resources.gold ?? 0) < reqGold ? ' deficit' : ''}`}>
+                              <span>GOLD</span>
+                              <strong>{formatNumber(reqGold)}</strong>
+                            </div>
+                            {recipe.uranium > 0 && (
+                              <div className={`craft-ingredient${(resources.uranium ?? 0) < reqUranium ? ' deficit' : ''}`}>
+                                <span>URANIUM</span>
+                                <strong>{formatNumber(reqUranium)}</strong>
+                              </div>
+                            )}
+                            {recipe.oil > 0 && (
+                              <div className={`craft-ingredient${(resources.oil ?? 0) < reqOil ? ' deficit' : ''}`}>
+                                <span>OIL</span>
+                                <strong>{formatNumber(reqOil)}</strong>
+                              </div>
+                            )}
+                            <div className={`craft-ingredient${player.money < reqMoney ? ' deficit' : ''}`}>
+                              <span>BUDGET ($)</span>
+                              <strong>${formatNumber(reqMoney)}</strong>
+                            </div>
+                          </div>
+
+                          <div className="craft-action-bar">
+                             <div className="craft-qty-display">
+                               {/* Empty or sub-info */}
+                             </div>
+                             <button
+                                type="button"
+                                className="craft-submit-btn"
+                                disabled={!canCraft}
+                                onClick={() => craftWeapon(selectedWeapon, amt)}
+                              >
+                                {canCraft ? `${t.ui.craftBtn} x${amt}` : t.ui.insufficientResources}
+                              </button>
+                          </div>
+                        </div>
                       );
                     })()}
                   </section>
-                </>
+                </div>
               )}
+
             </div>
           )}
 

@@ -1759,10 +1759,17 @@ body {
 }
 
 /* Removed storage-mode custom background and narrow padding */
+.storage-shell .phone-content {
+  padding: 0 !important;
+}
+
 .storage-page {
-  display: grid;
-  gap: 12px;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  padding-bottom: 80px;
 }
 
 .me-storage-card,
@@ -1771,24 +1778,22 @@ body {
   background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(243, 229, 186, 0.05);
   border-radius: 4px;
+  margin: 0 10px 12px; /* Margin instead of parent padding */
 }
 
 .me-storage-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
+  margin: 0 10px 12px;
 }
 
 .me-storage-card {
   padding: 12px;
-  display: grid;
-  grid-template-rows: 48px 36px;
-  gap: 4px;
-  height: 116px !important;
-  max-height: 116px !important;
-  overflow: hidden;
-  align-content: start;
-  border: 1px solid rgba(243, 229, 186, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 116px;
   background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
   border-radius: 4px;
 }
@@ -1832,9 +1837,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .me-storage-card-info strong {
@@ -1843,9 +1845,6 @@ body {
   font-size: 1.05rem;
   line-height: 1.2;
   font-family: var(--work-display-font);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .me-storage-card.gold strong {
@@ -1870,14 +1869,7 @@ body {
   color: #8a8a7a;
   font-size: 0.65rem;
   line-height: 1.25;
-  height: 36px;
-  min-height: 36px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin-top: 4px;
 }
 
 .me-storage-panel {
@@ -2017,27 +2009,29 @@ body {
 
 /* ─── Storage Sub-tabs ─── */
 .storage-subtabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
-  border: 1px solid rgba(243, 229, 186, 0.18);
-  border-radius: 4px;
-  overflow: hidden;
-  background: #0e0e0e;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(243, 229, 186, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 .storage-subtab {
-  padding: 10px 4px;
+  flex: 1;
+  padding: 8px 4px;
   font-size: 0.65rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6b6b5a;
-  background: transparent;
-  border: none;
-  border-right: 1px solid rgba(243, 229, 186, 0.1);
+  color: #8a8a7a;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(243, 229, 186, 0.05);
+  border-radius: 2px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: var(--work-ui-font);
   display: flex;
   align-items: center;
@@ -2046,108 +2040,115 @@ body {
   line-height: 1.2;
 }
 
-.storage-subtab:last-child {
-  border-right: none;
-}
-
 .storage-subtab:hover {
-  color: #bbb;
-  background: rgba(243, 229, 186, 0.04);
+  color: #fff;
+  background: rgba(243, 229, 186, 0.08);
+  border-color: rgba(243, 229, 186, 0.2);
 }
 
 .storage-subtab.active {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(232, 196, 74, 0.15) 0%, rgba(232, 196, 74, 0.04) 100%);
-  box-shadow: inset 0 -2px 0 var(--work-gold);
+  color: #000;
+  background: var(--work-gold);
+  border-color: var(--work-gold);
+  box-shadow: 0 0 15px rgba(232, 196, 74, 0.2);
 }
+
+
+/* Consolidated into top definition */
 
 /* ─── Trade Resources Strip ─── */
 .trade-resources-strip {
-  padding: 12px;
-  border: 1px solid rgba(243, 229, 186, 0.12);
-  background: linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
-  border-radius: 4px;
+  padding: 12px 10px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(243, 229, 186, 0.15);
+  position: sticky;
+  top: 38px; /* Below sub-tabs */
+  z-index: 15;
+  width: 100%;
 }
+
 
 .trade-resources-strip h3 {
   margin: 0 0 8px;
-  color: var(--work-gold);
-  font-size: 0.72rem;
+  color: var(--work-muted);
+  font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
+  text-align: center;
 }
 
 .trade-resources-row {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 6px;
+  padding-bottom: 4px;
 }
 
 .trade-res-chip {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  justify-content: center;
+  padding: 6px 12px;
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 3px;
-  flex: 1;
-  min-width: 60px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  min-width: 70px;
+  flex: 0 0 auto;
 }
 
 .trade-res-chip span {
-  color: #888;
-  font-size: 0.62rem;
+  color: #666;
+  font-size: 0.55rem;
   font-weight: 700;
   text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .trade-res-chip strong {
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
+  font-family: var(--work-display-font);
 }
 
 .trade-res-chip.money {
-  border-color: rgba(232, 196, 74, 0.2);
-  background: rgba(232, 196, 74, 0.06);
-}
-
-.trade-res-chip.money span {
-  color: var(--work-gold);
+  border-color: rgba(232, 196, 74, 0.15);
+  background: rgba(232, 196, 74, 0.04);
+  min-width: 90px;
 }
 
 .trade-res-chip.money strong {
   color: var(--work-gold);
 }
 
+
 /* ─── Trade Section ─── */
 .trade-section {
-  padding: 0;
+  padding: 0 10px;
 }
 
 .trade-section-title {
-  margin: 0;
-  padding: 10px 12px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  margin: 15px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: 1px solid rgba(243, 229, 186, 0.1);
-  border-radius: 4px 4px 0 0;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .trade-section-title.sell-title {
-  color: #ffcc66;
-  background: linear-gradient(90deg, rgba(255, 170, 0, 0.08), transparent);
-  border-bottom: none;
+  color: #fca311;
 }
 
 .trade-section-title.buy-title {
-  color: #66ddaa;
-  background: linear-gradient(90deg, rgba(0, 200, 100, 0.08), transparent);
-  border-bottom: none;
+  color: #4ade80;
 }
+
 
 .trade-section-title small {
   font-size: 0.64rem;
@@ -2156,257 +2157,249 @@ body {
   margin-left: 4px;
 }
 
-.trade-orders-grid {
+.order-book-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid rgba(243, 229, 186, 0.08);
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  background: rgba(10, 10, 10, 0.6);
+  grid-template-columns: repeat(auto-fill, minmax(Min(280px, 100%), 1fr));
+  gap: 10px;
 }
 
-.trade-order-card {
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, #1a1a18 0%, #101010 100%);
-  transition: all 0.2s ease;
-}
-
-.trade-order-card:hover {
-  border-color: rgba(243, 229, 186, 0.2);
-  transform: translateY(-1px);
-}
-
-.trade-order-card.sell {
-  border-left: 3px solid rgba(255, 180, 50, 0.5);
-}
-
-.trade-order-card.buy {
-  border-left: 3px solid rgba(80, 200, 120, 0.5);
-}
-
-.trade-order-header {
-  display: flex;
-  justify-content: space-between;
+.ob-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  margin-bottom: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  gap: 12px;
+  transition: all 0.2s;
 }
 
-.trade-order-resource {
-  color: #fff;
-  font-size: 0.82rem;
+.ob-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(243, 229, 186, 0.1);
 }
 
-.trade-order-price {
-  color: var(--work-gold);
-  font-size: 0.68rem;
-  font-weight: 700;
+.ob-card.sell {
+  border-left: 2px solid #fca311;
 }
 
-.trade-order-detail {
-  margin-bottom: 8px;
+.ob-card.buy {
+  border-left: 2px solid #4ade80;
 }
 
-.trade-order-detail span {
-  color: #777;
-  font-size: 0.64rem;
+.ob-card.system {
+  background: rgba(232, 196, 74, 0.02);
 }
 
-.trade-order-action {
-  display: grid;
-  grid-template-columns: 56px 1fr;
+.ob-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ob-resource-row {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.trade-qty-input {
-  width: 100%;
-  padding: 6px 4px;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 3px;
+.ob-resource-name {
   color: #fff;
-  font-size: 0.78rem;
-  text-align: center;
-  outline: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.ob-details-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.ob-price-block {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ob-price-val {
+  color: #fff;
+  font-size: 1rem;
   font-family: var(--work-display-font);
 }
 
-.trade-qty-input:focus {
-  border-color: var(--work-gold);
-}
-
-.trade-exec-btn {
-  padding: 6px 8px;
-  border: none;
-  border-radius: 3px;
-  font-size: 0.68rem;
+.ob-price-sub {
+  color: var(--work-gold);
+  font-size: 0.6rem;
   font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  opacity: 0.8;
 }
 
-.trade-exec-btn.sell-btn {
-  background: linear-gradient(180deg, #cc8800, #aa6600);
-  color: #fff;
-}
-
-.trade-exec-btn.sell-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, #dd9900, #bb7700);
-  box-shadow: 0 0 12px rgba(200, 140, 0, 0.3);
-}
-
-.trade-exec-btn.buy-btn {
-  background: linear-gradient(180deg, #2a8855, #1a6640);
-  color: #fff;
-}
-
-.trade-exec-btn.buy-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, #33aa66, #228855);
-  box-shadow: 0 0 12px rgba(50, 180, 100, 0.3);
-}
-
-.trade-exec-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* ─── Craft Section ─── */
-.craft-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0;
-}
-
-.cr-selector {
+.ob-action-sidebar {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 14px;
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid rgba(243, 229, 186, 0.15);
-  border-radius: 4px;
+  align-items: flex-end;
 }
 
-.cr-selector label {
-  color: #888;
-  font-size: 0.62rem;
-  font-weight: 700;
+.ob-input-group {
+  display: flex;
+  align-items: center;
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ob-input-group input {
+  width: 50px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 4px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-family: var(--work-display-font);
+}
+
+.ob-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ob-btn.buy {
+  background: #22c55e;
+  color: #000;
+}
+
+.ob-btn.sell {
+  background: #fca311;
+  color: #000;
+}
+
+.ob-btn:disabled {
+  opacity: 0.2;
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+
+/* ─── Craft Section ─── */
+.craft-section {
+  display: grid;
+  gap: 12px;
+}
+
+.craft-blueprint {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(243, 229, 186, 0.1);
+  border-radius: 6px;
+  padding: 15px;
+  display: grid;
+  gap: 15px;
+  margin: 0 10px 15px;
+}
+
+.craft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.craft-title-group h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.1rem;
+  font-family: var(--work-display-font);
+}
+
+.craft-title-group p {
+  margin: 2px 0 0;
+  color: #666;
+  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.craft-recipe-card {
-  padding: 12px;
-  border: 1px solid rgba(243, 229, 186, 0.12);
-  background: linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
+.craft-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.craft-ingredient {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
-  transition: all 0.25s ease;
-}
-
-.craft-recipe-card:hover {
-  border-color: rgba(243, 229, 186, 0.25);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-.craft-recipe-card.disabled {
-  opacity: 0.5;
-}
-
-.craft-recipe-card.disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.craft-recipe-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(243, 229, 186, 0.08);
-}
-
-.craft-weapon-name {
-  color: #fff;
-  font-size: 0.82rem;
-  font-family: var(--work-display-font);
-}
-
-.craft-owned-badge {
-  color: var(--work-gold);
-  font-size: 0.64rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border: 1px solid rgba(232, 196, 74, 0.2);
-  border-radius: 3px;
-  background: rgba(232, 196, 74, 0.06);
-}
-
-.craft-recipe-costs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-
-.craft-cost-item {
-  display: inline-block;
-  padding: 3px 6px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #bbb;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
-}
-
-.craft-cost-item.money {
-  color: var(--work-gold);
-  border-color: rgba(232, 196, 74, 0.15);
-}
-
-.craft-cost-item.deficit {
-  color: #ff9999;
-  border-color: rgba(255, 100, 100, 0.3);
-  background: rgba(255, 100, 100, 0.1);
-}
-
-.craft-btn {
-  width: 100%;
   padding: 8px;
-  border: none;
-  border-radius: 3px;
-  font-size: 0.72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.craft-ingredient span {
+  color: #555;
+  font-size: 0.55rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+}
+
+.craft-ingredient strong {
+  color: #ddd;
+  font-size: 0.8rem;
+}
+
+.craft-ingredient.deficit {
+  border-color: rgba(239, 61, 38, 0.3);
+  background: rgba(239, 61, 38, 0.05);
+}
+
+.craft-ingredient.deficit strong {
+  color: #ef4444;
+}
+
+.craft-action-bar {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.craft-submit-btn {
+  height: 44px;
+  background: var(--work-gold);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: linear-gradient(180deg, rgba(232, 196, 74, 0.2) 0%, rgba(232, 196, 74, 0.08) 100%);
-  color: var(--work-gold);
-  border: 1px solid rgba(232, 196, 74, 0.25);
+  transition: all 0.2s;
 }
 
-.craft-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, rgba(232, 196, 74, 0.35) 0%, rgba(232, 196, 74, 0.15) 100%);
-  box-shadow: 0 0 15px rgba(232, 196, 74, 0.2);
-  border-color: rgba(232, 196, 74, 0.5);
-}
-
-.craft-btn:disabled {
-  opacity: 0.4;
+.craft-submit-btn:disabled {
+  background: #222;
+  color: #444;
   cursor: not-allowed;
-  color: #666;
-  border-color: rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
 }
+
+.craft-submit-btn:not(:disabled):hover {
+  background: #fff;
+  box-shadow: 0 0 20px rgba(243, 229, 186, 0.3);
+}
+
 
 @media (max-width: 420px) {
   .trade-orders-grid,
@@ -2421,6 +2414,7 @@ body {
   border: 1px solid rgba(243, 229, 186, 0.15);
   background: linear-gradient(180deg, #1a1a18 0%, #0e0e0c 100%);
   border-radius: 4px;
+  margin: 0 10px 20px;
 }
 
 .order-form-panel h3 {
@@ -2549,163 +2543,7 @@ body {
   box-shadow: 0 0 12px rgba(200, 140, 0, 0.3);
 }
 
-/* ─── Order Book Cards ─── */
-.order-book-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ob-card {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 10px;
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
-}
-
-.ob-card.sell {
-  border-left: 3px solid rgba(255, 100, 100, 0.3);
-}
-
-.ob-card.buy {
-  border-left: 3px solid rgba(80, 200, 120, 0.3);
-}
-
-.ob-card.system {
-  opacity: 0.85;
-}
-
-.ob-card-top {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr;
-  align-items: center;
-  margin-bottom: 6px;
-  gap: 8px;
-}
-
-.ob-card-bottom {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ob-resource {
-  color: #ddd;
-  font-size: 0.74rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.ob-tag {
-  display: inline-block;
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-size: 0.52rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  vertical-align: middle;
-}
-
-.ob-tag.sys {
-  background: rgba(150, 150, 255, 0.15);
-  color: #99aaff;
-  border: 1px solid rgba(150, 150, 255, 0.25);
-}
-
-.ob-tag.player {
-  background: rgba(232, 196, 74, 0.12);
-  color: var(--work-gold);
-  border: 1px solid rgba(232, 196, 74, 0.25);
-}
-
-.ob-price {
-  color: var(--work-gold);
-  font-size: 0.74rem;
-  font-weight: 700;
-  font-family: var(--work-display-font);
-  text-align: right;
-}
-
-.ob-qty {
-  color: #aaa;
-  font-size: 0.74rem;
-  font-family: var(--work-display-font);
-  text-align: right;
-}
-
-.ob-action-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.ob-input {
-  width: 44px;
-  padding: 4px 2px;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  color: #fff;
-  font-size: 0.7rem;
-  text-align: center;
-  outline: none;
-  font-family: var(--work-display-font);
-}
-
-.ob-input:focus {
-  border-color: var(--work-gold);
-}
-
-.ob-fill-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 2px;
-  font-size: 0.62rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #fff;
-}
-
-.ob-fill-btn.buy-btn {
-  background: linear-gradient(180deg, #2a8855, #1a6640);
-}
-
-.ob-fill-btn.sell-btn {
-  background: linear-gradient(180deg, #cc8800, #aa6600);
-}
-
-.ob-fill-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.ob-fill-btn:hover:not(:disabled) {
-  filter: brightness(1.2);
-}
-
-.ob-cancel-btn {
-  padding: 4px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  font-size: 0.62rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  background: #222;
-  color: #aaa;
-}
-
-.ob-cancel-btn:hover {
-  background: #442222;
-  color: #ffaaaa;
-  border-color: #ffaaaa;
-}
+/* Cleaned up old styles */
 
 @media (max-width: 420px) {
 

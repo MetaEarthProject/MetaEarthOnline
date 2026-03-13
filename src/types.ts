@@ -47,6 +47,7 @@ export type War = {
 };
 
 export type Player = {
+  name: string;
   role: Role;
   level: number;
   xp: number;
@@ -129,4 +130,5 @@ export type MarketOrder = {
   quantity: number;
   pricePerUnit: number;
   isSystem: boolean;
+  creatorName?: string;
 };
